@@ -1,0 +1,96 @@
+<UserControl x:Class="MovieEditor3.Wpf.Views.MovieListView"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:local="clr-namespace:MovieEditor3.Wpf.Views" mc:Ignorable="d" d:DesignHeight="450"
+  xmlns:mate="http://materialdesigninxaml.net/winfx/xaml/themes"
+  xmlns:xaml="http://schemas.microsoft.com/xaml/behaviors"
+  d:DesignWidth="800">
+  <Grid>
+    <!-- ドロップエリア用キャンバス-->
+    <Canvas Background="Transparent" />
+
+    <!--DataGridItemからViewModelへアクセスするためのProxy-->
+    <FrameworkElement Name="DataContextProxy" DataContext="{Binding}" />
+
+    <DataGrid x:Name="MovieList" SelectionMode="Extended" AutoGenerateColumns="False"
+      CanUserAddRows="False" HeadersVisibility="All"
+      ItemsSource="{Binding MediaItems}">
+
+      <!-- 選択アイテム変更イベントをバインド -->
+      <xaml:Interaction.Triggers>
+        <xaml:EventTrigger EventName="SelectionChanged">
+          <xaml:InvokeCommandAction Command="{Binding SelectionChangedCommand}" 
+            CommandParameter="{Binding SelectedItem, ElementName=MovieList}"/>
+        </xaml:EventTrigger>
+      </xaml:Interaction.Triggers>
+    
+      <DataGrid.Columns>
+        <!--チェックボックス-->
+        <DataGridCheckBoxColumn Width="60" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}">
+
+          <!-- 全選択/全非選択操作用チェックボックス -->
+          <DataGridCheckBoxColumn.Header>
+            <Border Background="Transparent">
+              <CheckBox IsChecked="{Binding DataContext.IsAllSelected, Source={x:Reference DataContextProxy}}">
+                <xaml:Interaction.Triggers>
+                  <!-- チェックイベントをバインド -->
+                  <xaml:EventTrigger EventName="Checked">
+                    <xaml:InvokeCommandAction Command="{Binding DataContext.CheckedCommand, Source={x:Reference DataContextProxy}}" />
+                  </xaml:EventTrigger>
+                  <!-- 非チェックイベントをバインド -->
+                  <xaml:EventTrigger EventName="Unchecked">
+                    <xaml:InvokeCommandAction Command="{Binding DataContext.UncheckedCommand, Source={x:Reference DataContextProxy}}" />
+                  </xaml:EventTrigger>
+                </xaml:Interaction.Triggers>
+              </CheckBox>
+            </Border>
+          </DataGridCheckBoxColumn.Header>
+
+          <DataGridCheckBoxColumn.HeaderStyle>
+            <Style TargetType="{x:Type DataGridColumnHeader}" 
+              BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+              <Setter Property="HorizontalContentAlignment" Value="Center" />
+            </Style>
+          </DataGridCheckBoxColumn.HeaderStyle>
+        </DataGridCheckBoxColumn>
+
+        <!-- サムネイル -->
+        <DataGridTemplateColumn Header="サムネイル">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <Image Source="{Binding ThumbnailPath}" Height="72" Width="128" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+
+        <!-- 削除ボタン -->
+        <DataGridTemplateColumn Width="80">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <Button Style="{StaticResource MaterialDesignIconForegroundButton}"
+                Command="{Binding DataContext.DeleteCommand, Source={x:Reference DataContextProxy}}"
+                CommandParameter="{Binding}" >
+                <mate:PackIcon Kind="TrashCanOutline" Width="20" Height="20" />
+              </Button>
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+
+        <!-- 複製ボタン -->
+        <DataGridTemplateColumn Width="80">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <Button Style="{StaticResource MaterialDesignIconForegroundButton}"
+                Command="{Binding DataContext.CloneCommand, Source={x:Reference DataContextProxy}}"
+                CommandParameter="{Binding}" >
+                <mate:PackIcon Kind="ContentCopy" Width="20" Height="20" />
+              </Button>
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</UserControl>

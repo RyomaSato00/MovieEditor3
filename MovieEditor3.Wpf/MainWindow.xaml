@@ -1,0 +1,46 @@
+﻿<Window x:Class="MovieEditor3.Wpf.MainWindow"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:local="clr-namespace:MovieEditor3.Wpf"
+  xmlns:mate="http://materialdesigninxaml.net/winfx/xaml/themes"
+  xmlns:xaml="http://schemas.microsoft.com/xaml/behaviors"
+  xmlns:views="clr-namespace:MovieEditor3.Wpf.Views"
+  xmlns:behavior="clr-namespace:MovieEditor3.Wpf.Behaviors"
+  xmlns:convert="clr-namespace:MovieEditor3.Wpf.Converters" mc:Ignorable="d"
+  Style="{StaticResource MaterialDesignWindow}" Title="MainWindow" Height="450" Width="800">
+  <Window.Resources>
+    <BooleanToVisibilityConverter x:Key="Bool2VisibilityConverter" />
+  </Window.Resources>
+
+  <Grid>
+    <!-- エンプティステート表示 -->
+     <views:EmptyStateView DataContext="{Binding EmptyStateViewContext}"/>
+
+    <Grid Visibility="{Binding IsContentVisible, Converter={StaticResource Bool2VisibilityConverter}}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="50" />   <!-- ヘッダー -->
+        <RowDefinition Height="*" />    <!-- コンテンツ -->
+      </Grid.RowDefinitions>
+
+      <Border Grid.Row="0" Background="{DynamicResource MaterialDesign.Brush.Foreground}"
+        Opacity="0.2">
+      </Border>
+
+      <Grid Grid.Row="1" >
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />   <!-- メディアリスト -->
+          <ColumnDefinition Width="Auto" />   <!-- スプリッター -->
+          <ColumnDefinition Width="*" />    <!-- 編集画面 -->
+        </Grid.ColumnDefinitions>
+
+        <views:MovieListView DataContext="{Binding MediaListViewContext}" />
+
+        <!-- <Border Grid.Column="0" Background="{DynamicResource MaterialDesign.Brush.Primary}" /> -->
+        <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Center"
+          Width="2" Background="{DynamicResource MaterialDesign.Brush.Primary}" />
+      </Grid>
+    </Grid>
+  </Grid>
+</Window>
