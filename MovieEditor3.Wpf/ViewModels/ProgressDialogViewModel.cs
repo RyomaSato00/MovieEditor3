@@ -59,6 +59,7 @@ internal partial class ProgressDialogViewModel : ObservableObject
             Tick,
             Dispatcher.CurrentDispatcher
         );
+        _uiUpdateTimer.Stop();
     }
 
     /// <summary>

@@ -99,6 +99,9 @@ internal partial class ItemInfo : ObservableObject, IMovieEditViewProperty, ICro
     {
         // メディア情報をコピー（ディープコピー）
         OriginalMediaInfo = itemInfo.OriginalMediaInfo with { };
+
+        // プロパティをコピー
+        Copy(itemInfo, this);
     }
 
     /// <summary>
@@ -148,5 +151,33 @@ internal partial class ItemInfo : ObservableObject, IMovieEditViewProperty, ICro
         {
             EndPointImagePath = await ThumbnailCreator.CreateLastThumbnailAsync(FilePath);
         }
+    }
+
+    /// <summary>
+    /// あるアイテム情報から別のアイテム情報に編集プロパティをコピーします
+    /// </summary>
+    /// <param name="source">コピー元のアイテム情報</param>
+    /// <param name="destination">コピー先のアイテム情報</param>
+    /// <remarks>
+    /// このメソッドは、編集に関連するプロパティのみをコピーします。
+    /// ファイルパスやGUID、出力ディレクトリなどの識別情報はコピーされません。
+    /// </remarks>
+    public static void Copy(ItemInfo source, ItemInfo destination)
+    {
+        destination.StartPoint = source.StartPoint;
+        destination.EndPoint = source.EndPoint;
+        destination.StartPointImagePath = source.StartPointImagePath;
+        destination.EndPointImagePath = source.EndPointImagePath;
+        destination.CropRect = source.CropRect;
+        destination.ResizedWidth = source.ResizedWidth;
+        destination.ResizedHeight = source.ResizedHeight;
+        destination.Rotation = source.Rotation;
+        destination.PlaybackSpeed = source.PlaybackSpeed;
+        destination.FrameRate = source.FrameRate;
+        destination.Codec = source.Codec;
+        destination.IsAudioDisabled = source.IsAudioDisabled;
+        destination.FramesPerSecond = source.FramesPerSecond;
+        destination.CountOfFrames = source.CountOfFrames;
+        destination.Quality = source.Quality;
     }
 }
