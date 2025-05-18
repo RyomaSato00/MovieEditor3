@@ -52,6 +52,10 @@
     <xaml:PropertyChangedTrigger Binding="{Binding SeekReq}">
       <messenger:SeekAction />
     </xaml:PropertyChangedTrigger>
+
+    <xaml:PropertyChangedTrigger Binding="{Binding ChangeSliderValueReq}">
+      <messenger:ChangeSliderValueAction />
+    </xaml:PropertyChangedTrigger>
   </xaml:Interaction.Triggers>
 
   <Grid>
@@ -105,18 +109,12 @@
       </Grid>
     </Border>
 
-    <Slider Grid.Row="1" VerticalAlignment="Center" Margin="8"
+    <Slider Grid.Row="1" x:Name="PositionSlider" VerticalAlignment="Center" Margin="8"
       Maximum="{Binding Duration.TotalMilliseconds, Mode=OneWay}"
-      Value="{Binding CurrentTime.TotalMilliseconds, Mode=OneWay}" IsSelectionRangeEnabled="True"
+      ValueChanged="PositionSlider_ValueChanged"
+      IsSelectionRangeEnabled="True"
       SelectionStart="{Binding StartPoint.TotalMilliseconds, Mode=OneWay}"
-      SelectionEnd="{Binding EndPoint.TotalMilliseconds, Mode=OneWay}">
-      <xaml:Interaction.Triggers>
-        <xaml:EventTrigger EventName="ValueChanged">
-          <xaml:InvokeCommandAction Command="{Binding SliderValueChangedCommand}"
-            PassEventArgsToCommand="True" />
-        </xaml:EventTrigger>
-      </xaml:Interaction.Triggers>
-    </Slider>
+      SelectionEnd="{Binding EndPoint.TotalMilliseconds, Mode=OneWay}" />
 
     <Grid Grid.Row="2">
       <Grid.ColumnDefinitions>

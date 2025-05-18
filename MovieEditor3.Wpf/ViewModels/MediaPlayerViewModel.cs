@@ -63,20 +63,6 @@ internal partial class MediaPlayerViewModel : ObservableObject
     [ObservableProperty] private bool _isCropAreaVisible = false;
 
     /// <summary>
-    /// スライダー値変更時の処理
-    /// </summary>
-    /// <param name="e">値変更イベント引数</param>
-    [RelayCommand]
-    private void SliderValueChanged(RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (false == IsPlaying)
-        {
-            // System.Diagnostics.Debug.WriteLine($"{e.NewValue}");
-            Seek(TimeSpan.FromMilliseconds(Math.Round(e.NewValue)));
-        }
-    }
-
-    /// <summary>
     /// メディアの再生/一時停止を切り替えます
     /// </summary>
     /// <param name="isPlaying">再生する場合はtrue、一時停止する場合はfalse</param>
@@ -140,6 +126,7 @@ internal partial class MediaPlayerViewModel : ObservableObject
     [ObservableProperty] private MediaActionRequest? _pauseReq = null;
     [ObservableProperty] private MuteRequest? _muteReq = null;
     [ObservableProperty] private SeekRequest? _seekReq = null;
+    [ObservableProperty] private SeekRequest? _changeSliderValueReq = null;
 
     /// <summary>
     /// 総再生時間変更通知用のサブジェクト
@@ -156,14 +143,26 @@ internal partial class MediaPlayerViewModel : ObservableObject
     /// </summary>
     private readonly Subject<Unit> _storyEnded = new();
 
+    /// <summary>
+    /// スライダーの値変更通知用のサブジェクト
+    /// </summary>
+    /// <returns></returns>
+    private readonly Subject<TimeSpan> _sliderValueChanged = new();
+
     public MediaPlayerViewModel()
     {
         _durationChanged.Subscribe(duration => Duration = duration);
-        _storyUpdated.Where(_ => IsPlaying).Subscribe(currentTime => CurrentTime = currentTime);
-        // _storyUpdated.Subscribe(currentTime => SliderValue = currentTime.TotalMilliseconds);
+        _storyUpdated.Subscribe(currentTime => CurrentTime = currentTime);
+
+        // 動画再生中は、動画 → スライダー向きにイベントを流す
+        _storyUpdated.Where(_ => IsPlaying).Subscribe(ChangeSliderValue);
+
+        // 動画停止中は、スライダー → 動画向きにイベントを流す
+        _sliderValueChanged.Where(_ => false == IsPlaying).Subscribe(Seek);
         _storyEnded.Subscribe(_ => OnStoryEnded());
 
-        SetupReq = new SetupMediaPlayerRequest { DurationChanged = _durationChanged, StoryUpdated = _storyUpdated, StoryEnded = _storyEnded };
+        // イベント処理セットアップ
+        SetupReq = new SetupMediaPlayerRequest { DurationChanged = _durationChanged, StoryUpdated = _storyUpdated, StoryEnded = _storyEnded, SliderValueChanged = _sliderValueChanged };
     }
 
     /// <summary>
@@ -175,27 +174,27 @@ internal partial class MediaPlayerViewModel : ObservableObject
         IsPlaying = false;
         IsStoryCompleted = false;
         CurrentTime = TimeSpan.Zero;
+        ChangeSliderValueReq = new SeekRequest { Offset = TimeSpan.Zero };
 
         LoadMediaReq = new LoadMediaRequest { FilePath = itemInfo.FilePath };
         CropAreaContext.LoadCropAreaInfo(itemInfo);
     }
 
     /// <summary>
-    /// メディアを再生します
+    /// 編集の開始ポイントを動画の現在位置に設定します
     /// </summary>
-    public void Play() => PlayReq = new MediaActionRequest();
+    public void SetStartPoint()
+    {
+        StartPoint = CurrentTime;
+    }
 
     /// <summary>
-    /// メディアを一時停止します
+    /// 編集の終了ポイントを動画の現在位置に設定します
     /// </summary>
-    public void Pause() => PauseReq = new MediaActionRequest();
-
-    /// <summary>
-    /// 指定した位置にシークします
-    /// </summary>
-    /// <param name="offset">シーク先の位置</param>
-
-    public void Seek(TimeSpan offset) => SeekReq = new SeekRequest { Offset = offset };
+    public void SetEndPoint()
+    {
+        EndPoint = CurrentTime;
+    }
 
     /// <summary>
     /// クロップ領域の表示/非表示を切り替えます
@@ -205,6 +204,29 @@ internal partial class MediaPlayerViewModel : ObservableObject
     {
         IsCropAreaVisible = isibility;
     }
+
+    /// <summary>
+    /// メディアを再生します
+    /// </summary>
+    private void Play() => PlayReq = new MediaActionRequest();
+
+    /// <summary>
+    /// メディアを一時停止します
+    /// </summary>
+    private void Pause() => PauseReq = new MediaActionRequest();
+
+    /// <summary>
+    /// 指定した位置にシークします
+    /// </summary>
+    /// <param name="offset">シーク先の位置</param>
+
+    private void Seek(TimeSpan offset) => SeekReq = new SeekRequest { Offset = offset };
+
+    /// <summary>
+    /// スライダーの値を変更します
+    /// </summary>
+    /// <param name="offset"></param>
+    private void ChangeSliderValue(TimeSpan offset) => ChangeSliderValueReq = new SeekRequest { Offset = offset };
 
     /// <summary>
     /// 再生終了時の処理

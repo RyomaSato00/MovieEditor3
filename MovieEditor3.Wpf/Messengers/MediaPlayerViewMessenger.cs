@@ -14,7 +14,7 @@ internal class SetupMediaPlayerAction : TriggerAction<MediaPlayerView>
         if (parameter is DependencyPropertyChangedEventArgs e
         && e.NewValue is SetupMediaPlayerRequest request)
         {
-            AssociatedObject.Setup(request.DurationChanged, request.StoryUpdated, request.StoryEnded);
+            AssociatedObject.Setup(request.DurationChanged, request.StoryUpdated, request.StoryEnded, request.SliderValueChanged);
         }
     }
 }
@@ -79,11 +79,24 @@ internal class SeekAction : TriggerAction<MediaPlayerView>
     }
 }
 
+internal class ChangeSliderValueAction : TriggerAction<MediaPlayerView>
+{
+    protected override void Invoke(object parameter)
+    {
+        if (parameter is DependencyPropertyChangedEventArgs e
+        && e.NewValue is SeekRequest request)
+        {
+            AssociatedObject.ChangeSliderValue(request.Offset);
+        }
+    }
+}
+
 internal class SetupMediaPlayerRequest
 {
     public required IObserver<TimeSpan> DurationChanged { get; init; }
     public required IObserver<TimeSpan> StoryUpdated { get; init; }
     public required IObserver<Unit> StoryEnded { get; init; }
+    public required IObserver<TimeSpan> SliderValueChanged { get; init; }
 }
 
 internal class LoadMediaRequest

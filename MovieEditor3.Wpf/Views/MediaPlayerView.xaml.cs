@@ -36,7 +36,10 @@ public partial class MediaPlayerView : UserControl
     /// </summary>
     private IObserver<Unit>? _storyEnded = null;
 
-    // public Duration Duration { get; private set; }
+    /// <summary>
+    /// スライダーの値変更通知用のオブザーバー
+    /// </summary>
+    private IObserver<TimeSpan>? _sliderValueChanged = null;
 
     public MediaPlayerView()
     {
@@ -51,11 +54,12 @@ public partial class MediaPlayerView : UserControl
     /// <param name="durationChanged">再生時間変更通知用のオブザーバー</param>
     /// <param name="storyUpdated">再生位置更新通知用のオブザーバー</param>
     /// <param name="storyEnded">再生終了通知用のオブザーバー</param>
-    public void Setup(IObserver<TimeSpan> durationChanged, IObserver<TimeSpan> storyUpdated, IObserver<Unit> storyEnded)
+    public void Setup(IObserver<TimeSpan> durationChanged, IObserver<TimeSpan> storyUpdated, IObserver<Unit> storyEnded, IObserver<TimeSpan> sliderValueChanged)
     {
         _durationChanged = durationChanged;
         _storyUpdated = storyUpdated;
         _storyEnded = storyEnded;
+        _sliderValueChanged = sliderValueChanged;
     }
 
     /// <summary>
@@ -108,6 +112,15 @@ public partial class MediaPlayerView : UserControl
     }
 
     /// <summary>
+    /// スライダーの値を変更します
+    /// </summary>
+    /// <param name="value"></param>
+    public void ChangeSliderValue(TimeSpan value)
+    {
+        PositionSlider.Value = value.TotalMilliseconds;
+    }
+
+    /// <summary>
     /// 動画更新時処理
     /// </summary>
     /// <param name="sender"></param>
@@ -147,6 +160,16 @@ public partial class MediaPlayerView : UserControl
         }
 
         _durationChanged?.OnNext(duration);
+    }
+
+    /// <summary>
+    /// スライダーの値が変更された時に行う処理
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void PositionSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        _sliderValueChanged?.OnNext(TimeSpan.FromMilliseconds(Math.Round(e.NewValue)));
     }
 }
 

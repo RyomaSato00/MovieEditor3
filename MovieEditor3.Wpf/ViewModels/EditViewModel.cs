@@ -82,6 +82,7 @@ internal partial class EditViewModel : ObservableObject
         if (SelectedItem is not null)
         {
             SelectedItem.StartPoint = MediaPlayerViewContext.CurrentTime;
+            MediaPlayerViewContext.SetStartPoint();
         }
 
     }
@@ -94,6 +95,7 @@ internal partial class EditViewModel : ObservableObject
         if (SelectedItem is not null)
         {
             SelectedItem.EndPoint = MediaPlayerViewContext.CurrentTime;
+            MediaPlayerViewContext.SetEndPoint();
         }
     }
 }
