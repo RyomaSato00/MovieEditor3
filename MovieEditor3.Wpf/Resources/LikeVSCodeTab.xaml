@@ -1,0 +1,96 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:mate="http://materialdesigninxaml.net/winfx/xaml/themes"
+  xmlns:local="clr-namespace:MovieEditor3.Wpf.Resources">
+  <Style x:Key="LikeVSCodeTabItemStyle" TargetType="{x:Type TabItem}"
+    BasedOn="{StaticResource MaterialDesignNavigationRailTabItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TabItem}">
+          <Grid x:Name="Root" Cursor="Hand">
+            <Grid
+              local:LikeVSCodeTabBehavior.ClickArea="{Binding RelativeSource={RelativeSource Self}}"
+              local:LikeVSCodeTabBehavior.Self="{Binding RelativeSource={RelativeSource AncestorType={x:Type TabItem}}}"
+              local:LikeVSCodeTabBehavior.Parent="{Binding RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}">
+              <Border x:Name="MouseOverBorder" Background="{TemplateBinding Background}"
+                CornerRadius="{Binding Path=(mate:NavigationRailAssist.SelectionCornerRadius), RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}"
+                Opacity=".08" Visibility="Hidden" />
+              <mate:ColorZone x:Name="colorZone" HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                mate:ColorZoneAssist.Background="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(mate:ColorZoneAssist.Background)}"
+                mate:ColorZoneAssist.Foreground="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(mate:ColorZoneAssist.Foreground)}"
+                Background="{x:Null}" Cursor="Hand" Focusable="False"
+                Mode="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(mate:ColorZoneAssist.Mode)}">
+                <mate:Ripple x:Name="contentPresenter" Padding="{TemplateBinding Padding}"
+                  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+                  ClipToBounds="True" Content="{TemplateBinding Header}"
+                  ContentStringFormat="{TemplateBinding HeaderStringFormat}"
+                  ContentTemplate="{TemplateBinding HeaderTemplate}"
+                  ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}"
+                  Focusable="False" Opacity=".52" RecognizesAccessKey="True"
+                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                  TextBlock.FontSize="15" TextBlock.FontWeight="Medium"
+                  TextOptions.TextFormattingMode="Ideal" TextOptions.TextRenderingMode="Auto">
+                </mate:Ripple>
+              </mate:ColorZone>
+            </Grid>
+            <Border x:Name="SelectionHighlightBorder" Visibility="Hidden">
+              <Grid x:Name="PART_BackgroundSelection">
+                <Border BorderBrush="{DynamicResource MaterialDesign.Brush.Primary}"
+                  BorderThickness="2,0,0,0" IsHitTestVisible="False" />
+              </Grid>
+            </Border>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.38" />
+            </Trigger>
+            <Trigger SourceName="Root" Property="IsMouseOver" Value="True">
+              <Setter TargetName="MouseOverBorder" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+              <Setter TargetName="contentPresenter" Property="Opacity" Value="1" />
+              <Setter TargetName="contentPresenter" Property="mate:RippleAssist.IsDisabled"
+                Value="True" />
+            </Trigger>
+
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsSelected" Value="True" />
+                <Condition Property="mate:ColorZoneAssist.Mode" Value="Standard" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="contentPresenter" Property="Foreground"
+                Value="{DynamicResource MaterialDesign.Brush.Foreground}" />
+            </MultiTrigger>
+
+            <MultiDataTrigger>
+              <MultiDataTrigger.Conditions>
+                <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}"
+                  Value="True" />
+                <Condition
+                  Binding="{Binding Path=(mate:NavigationRailAssist.ShowSelectionBackground), RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}"
+                  Value="True" />
+              </MultiDataTrigger.Conditions>
+              <Setter TargetName="SelectionHighlightBorder" Property="Visibility" Value="Visible" />
+            </MultiDataTrigger>
+
+            <Trigger Property="mate:ColorZoneAssist.Mode" Value="Standard">
+              <Setter Property="Background"
+                Value="{DynamicResource MaterialDesign.Brush.Foreground}" />
+              <Setter Property="BorderBrush"
+                Value="{DynamicResource MaterialDesign.Brush.Foreground}" />
+            </Trigger>
+
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="LikeVSCodeTabControlStyle" TargetType="{x:Type TabControl}"
+    BasedOn="{StaticResource MaterialDesignNavigationRailTabControl}">
+    <Setter Property="ItemContainerStyle" Value="{StaticResource LikeVSCodeTabItemStyle}" />
+    <Setter Property="mate:NavigationRailAssist.ShowSelectionBackground" Value="True" />
+    <Setter Property="SnapsToDevicePixels" Value="True" />
+  </Style>
+</ResourceDictionary>

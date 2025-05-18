@@ -12,11 +12,11 @@ using System.Windows.Shapes;
 namespace MovieEditor3.Wpf.Views;
 
 /// <summary>
-/// Interaction logic for MovieListView.xaml
+/// Interaction logic for ParameterView.xaml
 /// </summary>
-public partial class MovieListView : UserControl
+public partial class ParameterView : UserControl
 {
-    public MovieListView()
+    public ParameterView()
     {
         InitializeComponent();
     }

@@ -6,6 +6,13 @@ namespace MovieEditor3.Wpf.Programs;
 /// <summary>
 /// メディアファイルからサムネイル画像を生成するユーティリティクラス
 /// </summary>
+/// <summary>
+/// Provides utility methods for creating thumbnails from media files using FFmpeg.
+/// </summary>
+/// <remarks>
+/// This class handles thumbnail generation for media files, supporting both synchronous and asynchronous operations.
+/// It can create thumbnails at a specific time point or from the last frame of a media file.
+/// </remarks>
 internal class ThumbnailCreator
 {
     /// <summary>
@@ -36,10 +43,13 @@ internal class ThumbnailCreator
         var thumbnailPath = ToThumbnailPath(mediaPath, point);
 
         // ファイルパスの重複を回避
-        thumbnailPath = RenameOnlyPath(thumbnailPath);
+        thumbnailPath = Utilities.RenameOnlyPath(thumbnailPath);
+
+        // ffmpeg用コマンドライン引数を生成
+        var arguments = ConfigureArguments(mediaPath, thumbnailPath, point);
 
         // サムネイル生成
-        CreateImageFile(mediaPath, thumbnailPath, point);
+        CreateImageFile(arguments);
 
         return thumbnailPath;
     }
@@ -62,10 +72,69 @@ internal class ThumbnailCreator
         var thumbnailPath = ToThumbnailPath(mediaPath, point);
 
         // ファイルパスの重複を回避
-        thumbnailPath = RenameOnlyPath(thumbnailPath);
+        thumbnailPath = Utilities.RenameOnlyPath(thumbnailPath);
+
+        // ffmpeg用コマンドライン引数を生成
+        var arguments = ConfigureArguments(mediaPath, thumbnailPath, point);
 
         // サムネイル生成
-        await CreateImageFileAsync(mediaPath, thumbnailPath, point);
+        await CreateImageFileAsync(arguments);
+
+        return thumbnailPath;
+    }
+
+    /// <summary>
+    /// メディアファイルの最後のサムネイル画像を生成する
+    /// </summary>
+    /// <param name="mediaPath">サムネイル画像を生成するメディアファイルのパス</param>
+    /// <returns>生成されたサムネイル画像のファイルパス</returns>
+    public static string CreateLastThumbnail(string mediaPath)
+    {
+        // サムネイル画像ファイルを置いておくディレクトリが存在？
+        if (false == Directory.Exists(App.ThumbnailDirectory))
+        {
+            Directory.CreateDirectory(App.ThumbnailDirectory);
+        }
+
+        // サムネイル画像ファイルパス生成
+        var thumbnailPath = ToLastThumbnailPath(mediaPath);
+
+        // ファイルパスの重複を回避
+        thumbnailPath = Utilities.RenameOnlyPath(thumbnailPath);
+
+        // ffmpeg用コマンドライン引数を生成
+        var arguments = ConfigureLastThumbnailArguments(mediaPath, thumbnailPath);
+
+        // サムネイル生成
+        CreateImageFile(arguments);
+
+        return thumbnailPath;
+    }
+
+    /// <summary>
+    /// メディアファイルの最後のサムネイル画像を非同期で生成する
+    /// </summary>
+    /// <param name="mediaPath">サムネイル画像を生成するメディアファイルのパス</param>
+    /// <returns>生成されたサムネイル画像のファイルパス</returns>
+    public static async Task<string> CreateLastThumbnailAsync(string mediaPath)
+    {
+        // サムネイル画像ファイルを置いておくディレクトリが存在？
+        if (false == Directory.Exists(App.ThumbnailDirectory))
+        {
+            Directory.CreateDirectory(App.ThumbnailDirectory);
+        }
+
+        // サムネイル画像ファイルパス生成
+        var thumbnailPath = ToLastThumbnailPath(mediaPath);
+
+        // ファイルパスの重複を回避
+        thumbnailPath = Utilities.RenameOnlyPath(thumbnailPath);
+
+        // ffmpeg用コマンドライン引数を生成
+        var arguments = ConfigureLastThumbnailArguments(mediaPath, thumbnailPath);
+
+        // サムネイル生成
+        await CreateImageFileAsync(arguments);
 
         return thumbnailPath;
     }
@@ -84,55 +153,24 @@ internal class ThumbnailCreator
     }
 
     /// <summary>
-    /// ファイル名が重複している場合、重複しないファイル名に変更
+    /// メディアファイル名と時間からサムネイル画像のファイルパスを生成（最終フレーム用）
     /// </summary>
-    /// <param name="originalPath">ファイルパス</param>
-    /// <returns>重複しないファイルパス</returns>
-    private static string RenameOnlyPath(string originalPath)
+    /// <param name="mediaPath">メディアファイルのパス</param>
+    /// <param name="point">サムネイル画像を切り出す時間位置</param>
+    /// <returns>生成されたサムネイル画像のファイルパス</returns>
+    private static string ToLastThumbnailPath(string mediaPath)
     {
-        string result = originalPath;
-
-        // ファイルパス重複あり？
-        if (File.Exists(originalPath))
-        {
-            // ファイルが置かれたディレクトリを取得
-            var parent = Path.GetDirectoryName(originalPath) ?? string.Empty;
-
-            // 拡張子を除いたファイル名
-            var pureName = Path.GetFileNameWithoutExtension(originalPath);
-
-            // 拡張子
-            var extension = Path.GetExtension(originalPath);
-
-            // 複製カウンタ
-            var duplicateCount = 1;
-
-            do
-            {
-                // ファイルパス = ディレクトリ//ファイル名（カウンタ）.拡張子
-                result = Path.Combine(parent, $"{pureName}({duplicateCount}){extension}");
-
-                duplicateCount++;
-
-            // 重複しないファイルパスが見つかるまでカウントアップ
-            } while (File.Exists(result));
-
-        }
-
-        return result;
+        var originalName = Path.GetFileNameWithoutExtension(mediaPath);
+        var fileName = $"{originalName}_last{IMAGE_EXTENSION}";
+        return Path.Combine(App.ThumbnailDirectory, fileName);
     }
 
     /// <summary>
     /// ffmpegを使用してサムネイル画像を生成
     /// </summary>
-    /// <param name="mediaPath">メディアファイルのパス</param>
-    /// <param name="imagePath">サムネイル画像のパス</param>
-    /// <param name="point">サムネイル画像を切り出す時間位置</param>
-    private static void CreateImageFile(string mediaPath, string imagePath, TimeSpan point)
+    /// <param name="arguments">処理コマンド</param>
+    private static void CreateImageFile(string arguments)
     {
-        // ffmpeg用コマンドライン引数を生成
-        var arguments = ConfigureArguments(mediaPath, imagePath, point);
-
         // 処理条件設定
         var processInfo = new ProcessStartInfo(FFMPEG_EXE)
         {
@@ -153,14 +191,9 @@ internal class ThumbnailCreator
     /// <summary>
     /// ffmpegを使用してサムネイル画像を生成（非同期）
     /// </summary>
-    /// <param name="mediaPath">メディアファイルのパス</param>
-    /// <param name="imagePath">サムネイル画像のパス</param>
-    /// <param name="point">サムネイル画像を切り出す時間位置</param>
-    private static async Task CreateImageFileAsync(string mediaPath, string imagePath, TimeSpan point)
+    /// <param name="arguments">処理コマンド</param>
+    private static async Task CreateImageFileAsync(string arguments)
     {
-        // ffmpeg用コマンドライン引数を生成
-        var arguments = ConfigureArguments(mediaPath, imagePath, point);
-
         // 処理条件設定
         var processInfo = new ProcessStartInfo(FFMPEG_EXE)
         {
@@ -188,5 +221,16 @@ internal class ThumbnailCreator
     private static string ConfigureArguments(string mediaPath, string imagePath, TimeSpan point)
     {
         return $"-y -i \"{mediaPath}\" -ss {point:hh\\:mm\\:ss\\.fff} -vframes 1 -q:v 2 \"{imagePath}\"";
+    }
+
+    /// <summary>
+    /// ffmpegに渡すコマンドライン引数を組み立てる
+    /// </summary>
+    /// <param name="mediaPath">メディアファイルのパス</param>
+    /// <param name="imagePath">サムネイル画像のパス</param>
+    /// <returns>ffmpegに渡すコマンドライン引数</returns>
+    private static string ConfigureLastThumbnailArguments(string mediaPath, string imagePath)
+    {
+        return $"-y -sseof -1 -i \"{mediaPath}\" -vframes 1 -q:v 2 \"{imagePath}\"";
     }
 }

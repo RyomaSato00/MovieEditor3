@@ -9,6 +9,9 @@ internal record MediaInfo
     /// <summary> ファイルパス </summary>
     public required string FilePath { get; init; }
 
+    /// <summary> ファイル名 </summary>
+    public required string FileName { get; init; }
+
     /// <summary> 拡張子なしファイル名 </summary>
     public required string FileNameWithoutExtension { get; init; }
 
@@ -37,6 +40,7 @@ internal record MediaInfo
     public static readonly MediaInfo Empty = new()
     {
         FilePath = string.Empty,
+        FileName = string.Empty,
         FileNameWithoutExtension = string.Empty,
         Extension = string.Empty,
         Width = -1,
@@ -77,6 +81,7 @@ internal record MediaInfo
         return new MediaInfo
         {
             FilePath = filePath,
+            FileName = Path.GetFileName(filePath),
             FileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath),
             Extension = Path.GetExtension(filePath),
             Width = video.Width,
@@ -112,6 +117,7 @@ internal record MediaInfo
         return new MediaInfo
         {
             FilePath = filePath,
+            FileName = Path.GetFileName(filePath),
             FileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath),
             Extension = Path.GetExtension(filePath),
             Width = video.Width,

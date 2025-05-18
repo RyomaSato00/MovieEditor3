@@ -1,10 +1,13 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
+using MovieEditor3.Wpf.Programs;
 
 using Reactive.Bindings;
 
@@ -18,7 +21,8 @@ internal partial class MediaListViewModel : ObservableObject
     /// <summary>
     /// 全選択状態を管理するプロパティ（選択・非選択が混在する場合はnull）
     /// </summary>
-    [ObservableProperty] private bool? _isAllSelected = false;
+    // [ObservableProperty] private bool? _isAllSelected = false;
+    public ReactivePropertySlim<bool?> IsAllSelected { get; } = new(false);
 
     /// <summary>
     /// リストが空かどうかを監視するReactiveプロパティ
@@ -28,7 +32,24 @@ internal partial class MediaListViewModel : ObservableObject
     /// <summary>
     /// 選択中のアイテムを監視するReactiveプロパティ
     /// </summary>
-    public IReadOnlyReactiveProperty<ItemInfo?> IsSelected => _isSelected;
+    public IReadOnlyReactiveProperty<ItemInfo?> OnSelected => _onSelected;
+
+    /// <summary>
+    /// ドロップイベントハンドラ
+    /// </summary>
+    /// <param name="e">ドラッグイベント引数</param>
+    [RelayCommand]
+    private void Drop(DragEventArgs e)
+    {
+        // ドロップされたデータがファイルではない場合は何もしない
+        if (false == e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+
+        // ドロップされたデータをファイルパスの配列として取得
+        var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+        // 新しいファイルを追加
+        _ = AddItemsAsync(files);
+    }
 
     /// <summary>
     /// 選択状態が変更されたときのコマンド
@@ -37,11 +58,9 @@ internal partial class MediaListViewModel : ObservableObject
     [RelayCommand]
     private void SelectionChanged(ItemInfo? itemInfo)
     {
-        _isSelected.Value = itemInfo;
+        _onSelected.Value = itemInfo;
 
-        if (itemInfo is null) return;
-
-        System.Diagnostics.Debug.WriteLine($"{itemInfo.OriginalMediaInfo.FileNameWithoutExtension}");
+        // System.Diagnostics.Debug.WriteLine($"{itemInfo.OriginalMediaInfo.FileNameWithoutExtension}");
     }
 
     /// <summary>
@@ -74,7 +93,12 @@ internal partial class MediaListViewModel : ObservableObject
     [RelayCommand]
     private void Delete(ItemInfo itemInfo)
     {
+        var afterIndex = MediaItems.IndexOf(itemInfo) - 1;
+        afterIndex = afterIndex >= 0 ? afterIndex : 0;
+
         MediaItems.Remove(itemInfo);
+
+        SelectionChanged(MediaItems[afterIndex]);
     }
 
     /// <summary>
@@ -83,9 +107,8 @@ internal partial class MediaListViewModel : ObservableObject
     [RelayCommand]
     private void Clone(ItemInfo itemInfo)
     {
-        var cloneItem = new ItemInfo();
-        cloneItem.CopyInfoFrom(itemInfo);
-        AddItem(cloneItem);
+        var cloneItem = new ItemInfo(itemInfo, _userSetting);
+        InsertItem(cloneItem, MediaItems.IndexOf(itemInfo) + 1);
     }
 
     /// <summary>
@@ -96,29 +119,47 @@ internal partial class MediaListViewModel : ObservableObject
     /// <summary>
     /// 選択中のアイテムを監視するReactiveプロパティ
     /// </summary>
-    private readonly ReactivePropertySlim<ItemInfo?> _isSelected = new(null);
+    private readonly ReactivePropertySlim<ItemInfo?> _onSelected = new(null);
 
-    public MediaListViewModel()
+    /// <summary>
+    /// ユーザー設定
+    /// </summary>
+    private readonly UserSetting _userSetting;
+
+    public MediaListViewModel(UserSetting userSetting)
     {
+        _userSetting = userSetting;
         MediaItems.CollectionChanged += OnCollectionChanged;
     }
 
     /// <summary>
     /// 複数のファイルパスについて非同期でアイテムを生成し、リストに追加する
     /// </summary>
-    /// <param name="items">ファイルパスの列挙</param>
-    public async Task AddItemsAsync(IEnumerable<string> items)
+    /// <param name="files">ファイルパスの列挙</param>
+    public async Task AddItemsAsync(IEnumerable<string> files)
     {
         // 並列処理用のワークスペース生成
-        var workspace = items.ToDictionary(item => item, item => new ItemInfo());
+        var workspace = files.Select(file => new ItemInfo(file, _userSetting)).ToArray();
 
         // 非同期で並列処理実行
         await Task.Run(() => CreateItems(workspace));
 
         // 生成したアイテムをリストに追加
-        foreach (var result in workspace)
+        foreach (var item in workspace)
         {
-            AddItem(result.Value);
+            AddItem(item);
+        }
+    }
+
+    /// <summary>
+    /// 選択状態にあるアイテムをリストから削除する
+    /// </summary>
+    public void RemoveSelectedItems()
+    {
+        var selectedItems = MediaItems.Where(item => item.IsSelected);
+        foreach (var item in selectedItems)
+        {
+            MediaItems.Remove(item);
         }
     }
 
@@ -126,14 +167,14 @@ internal partial class MediaListViewModel : ObservableObject
     /// ファイルパスとItemInfoの辞書から各アイテムの情報を並列処理によって取得
     /// </summary>
     /// <param name="workspace">ファイルパスとItemInfoの辞書</param>
-    private static void CreateItems(Dictionary<string, ItemInfo> workspace)
+    private static void CreateItems(IEnumerable<ItemInfo> workspace)
     {
         workspace.AsParallel()
-        .ForAll(static source =>
+        .ForAll(static item =>
         {
             try
             {
-                source.Value.LoadInfo(source.Key);
+                item.LoadInfo();
             }
             catch (ArgumentException e)
             {
@@ -157,6 +198,15 @@ internal partial class MediaListViewModel : ObservableObject
     }
 
     /// <summary>
+    /// アイテムをリストの指定位置に挿入する
+    /// </summary>
+    private void InsertItem(ItemInfo itemInfo, int index)
+    {
+        itemInfo.PropertyChanged += OnPropertyChanged;
+        MediaItems.Insert(index, itemInfo);
+    }
+
+    /// <summary>
     /// アイテムのプロパティ変更イベントハンドラ
     /// </summary>
     /// <param name="sender"></param>
@@ -169,9 +219,9 @@ internal partial class MediaListViewModel : ObservableObject
         if (e.PropertyName == nameof(ItemInfo.IsSelected))
         {
             // IsAllSelectedと異なる値に変更した場合のみIsAllSelectedをnullに変更
-            if (IsAllSelected is not null && IsAllSelected != itemInfo.IsSelected)
+            if (IsAllSelected.Value is not null && IsAllSelected.Value != itemInfo.IsSelected)
             {
-                IsAllSelected = null;
+                IsAllSelected.Value = null;
             }
         }
 

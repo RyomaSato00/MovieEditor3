@@ -4,13 +4,119 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:local="clr-namespace:MovieEditor3.Wpf.Views" mc:Ignorable="d" d:DesignHeight="450"
-  d:DesignWidth="800">
+  xmlns:mate="http://materialdesigninxaml.net/winfx/xaml/themes"
+  xmlns:xaml="http://schemas.microsoft.com/xaml/behaviors"
+  xmlns:convert="clr-namespace:MovieEditor3.Wpf.Converters" d:DesignWidth="800">
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary
+          Source="pack://application:,,,/MovieEditor3.Wpf;component/Resources/LikeVSCodeTab.xaml" />
+        <ResourceDictionary>
+          <Style x:Key="DetailInfoTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Opacity" Value="0.6" />
+            <Setter Property="Margin" Value="0,0,12,0" />
+            <Setter Property="FontFamily" Value="Consolas" />
+          </Style>
+          <convert:ByteToMByteConverter x:Key="Byte2MByteConverter" />
+          <Style x:Key="RightSideBorderStyle" TargetType="{x:Type Border}">
+            <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesign.Brush.Primary}" />
+            <Setter Property="BorderThickness" Value="1,0,0,0" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Width" Value="240" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+          </Style>
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+
+  </UserControl.Resources>
+
   <Grid>
     <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>    <!-- テキスト -->
+      <RowDefinition Height="Auto" />    <!-- テキスト -->
       <RowDefinition Height="*" />    <!-- 動画 -->
-      <RowDefinition Height="Auto"/>    <!-- スプリッター -->
-      <RowDefinition Height="Auto"/>    <!-- 編集エリア -->
     </Grid.RowDefinitions>
+
+    <Border Grid.Row="0" BorderBrush="{DynamicResource MaterialDesign.Brush.Foreground}"
+      BorderThickness="0,0,0,1" Padding="8" HorizontalAlignment="Stretch">
+      <StackPanel>
+        <TextBlock Text="{Binding SelectedItem.OriginalMediaInfo.FileName}" />
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,4,0,0">
+          <TextBlock Style="{StaticResource DetailInfoTextStyle}">
+            <TextBlock.Text>
+              <MultiBinding StringFormat="{}{0}:{1}(W:H)">
+                <Binding Path="SelectedItem.OriginalMediaInfo.Width" />
+                <Binding Path="SelectedItem.OriginalMediaInfo.Height" />
+              </MultiBinding>
+            </TextBlock.Text>
+          </TextBlock>
+          <TextBlock
+            Text="{Binding SelectedItem.OriginalMediaInfo.Duration, StringFormat={}{0:mm\\:ss\\.fff}}"
+            Style="{StaticResource DetailInfoTextStyle}" />
+          <TextBlock
+            Text="{Binding SelectedItem.OriginalMediaInfo.FrameRate, StringFormat={}{0:0.###}fps}"
+            Style="{StaticResource DetailInfoTextStyle}" />
+          <TextBlock Text="{Binding SelectedItem.OriginalMediaInfo.VideoCodec}"
+            Style="{StaticResource DetailInfoTextStyle}" />
+        </StackPanel>
+
+        <TextBlock
+          Text="{Binding SelectedItem.OriginalMediaInfo.FileSize,
+          Converter={StaticResource Byte2MByteConverter}, StringFormat={}{0:0.###}MB}"
+          Style="{StaticResource DetailInfoTextStyle}" />
+      </StackPanel>
+    </Border>
+
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+
+      <local:MediaPlayerView Grid.Column="0" DataContext="{Binding MediaPlayerViewContext}"
+        Margin="4" HorizontalAlignment="Stretch" />
+
+      <TabControl Grid.Column="1" Style="{StaticResource LikeVSCodeTabControlStyle}"
+        TabStripPlacement="Right">
+        <TabItem>
+          <TabItem.Header>
+            <mate:PackIcon Width="28" Height="28" Kind="MovieOpenOutline"
+              HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </TabItem.Header>
+          <Border Style="{StaticResource RightSideBorderStyle}">
+            <local:MovieEditView DataContext="{Binding MovieEditViewContext}" />
+          </Border>
+        </TabItem>
+        <TabItem>
+          <TabItem.Header>
+            <mate:PackIcon Width="28" Height="28" Kind="CropRotate" HorizontalAlignment="Center"
+              VerticalAlignment="Center" />
+          </TabItem.Header>
+          <Border Style="{StaticResource RightSideBorderStyle}">
+            <local:CropEditView DataContext="{Binding CropEditViewContext}" />
+          </Border>
+        </TabItem>
+        <TabItem>
+          <TabItem.Header>
+            <mate:PackIcon Width="28" Height="28" Kind="Tune" HorizontalAlignment="Center"
+              VerticalAlignment="Center" />
+          </TabItem.Header>
+          <Border Style="{StaticResource RightSideBorderStyle}">
+            <local:ParameterView DataContext="{Binding SelectedItem}" />
+          </Border>
+        </TabItem>
+
+        <xaml:Interaction.Triggers>
+          <xaml:EventTrigger EventName="SelectionChanged">
+            <xaml:InvokeCommandAction Command="{Binding TabSelectionChangedCommand}"
+              CommandParameter="{Binding SelectedIndex, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" />
+          </xaml:EventTrigger>
+        </xaml:Interaction.Triggers>
+      </TabControl>
+    </Grid>
   </Grid>
 </UserControl>

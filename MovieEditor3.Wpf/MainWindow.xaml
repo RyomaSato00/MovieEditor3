@@ -8,39 +8,70 @@
   xmlns:xaml="http://schemas.microsoft.com/xaml/behaviors"
   xmlns:views="clr-namespace:MovieEditor3.Wpf.Views"
   xmlns:behavior="clr-namespace:MovieEditor3.Wpf.Behaviors"
+  xmlns:messenger="clr-namespace:MovieEditor3.Wpf.Messengers"
   xmlns:convert="clr-namespace:MovieEditor3.Wpf.Converters" mc:Ignorable="d"
   Style="{StaticResource MaterialDesignWindow}" Title="MainWindow" Height="450" Width="800">
   <Window.Resources>
     <BooleanToVisibilityConverter x:Key="Bool2VisibilityConverter" />
+    <views:CommandCheckDialog x:Key="CommandCheckDialog"
+      DataContext="{Binding CommandCheckDialogContext}" />
+    <views:ProgressDialog x:Key="ProgressDialog" DataContext="{Binding ProgressDialogContext}" />
+    <views:YesNoDialog x:Key="DeleteDialog" DataContext="{Binding DeleteDialogContext}" />
   </Window.Resources>
 
-  <Grid>
-    <!-- エンプティステート表示 -->
-     <views:EmptyStateView DataContext="{Binding EmptyStateViewContext}"/>
+  <xaml:Interaction.Triggers>
+    <xaml:PropertyChangedTrigger Binding="{Binding ShowCommandCheckDialogReq}">
+      <messenger:ShowCommandCheckDialogAction />
+    </xaml:PropertyChangedTrigger>
 
-    <Grid Visibility="{Binding IsContentVisible, Converter={StaticResource Bool2VisibilityConverter}}">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="50" />   <!-- ヘッダー -->
-        <RowDefinition Height="*" />    <!-- コンテンツ -->
-      </Grid.RowDefinitions>
+    <xaml:PropertyChangedTrigger Binding="{Binding ShowProgressDialogReq}">
+      <messenger:ShowProgressDialogAction />
+    </xaml:PropertyChangedTrigger>
 
-      <Border Grid.Row="0" Background="{DynamicResource MaterialDesign.Brush.Foreground}"
-        Opacity="0.2">
-      </Border>
+    <xaml:PropertyChangedTrigger Binding="{Binding ShowDeleteDialogReq}">
+      <messenger:ShowDeleteDialogAction />
+    </xaml:PropertyChangedTrigger>
+  </xaml:Interaction.Triggers>
+  <mate:DialogHost DialogTheme="Inherit">
 
-      <Grid Grid.Row="1" >
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto" />   <!-- メディアリスト -->
-          <ColumnDefinition Width="Auto" />   <!-- スプリッター -->
-          <ColumnDefinition Width="*" />    <!-- 編集画面 -->
-        </Grid.ColumnDefinitions>
+    <Grid>
+      <!-- エンプティステート表示 -->
+      <views:EmptyStateView DataContext="{Binding EmptyStateViewContext}" />
 
-        <views:MovieListView DataContext="{Binding MediaListViewContext}" />
+      <Grid
+        Visibility="{Binding IsContentVisible, Converter={StaticResource Bool2VisibilityConverter}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="50" />   <!-- ヘッダー -->
+          <RowDefinition Height="*" />    <!-- コンテンツ -->
+          <RowDefinition Height="Auto" />   <!-- フッター -->
+        </Grid.RowDefinitions>
 
-        <!-- <Border Grid.Column="0" Background="{DynamicResource MaterialDesign.Brush.Primary}" /> -->
-        <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Center"
-          Width="2" Background="{DynamicResource MaterialDesign.Brush.Primary}" />
+        <Border Grid.Row="0" Background="{DynamicResource MaterialDesign.Brush.Foreground}"
+          Opacity="0.2">
+          <!-- <Button Click="Button_Click" Content="ダイアログ表示" /> -->
+        </Border>
+
+        <Grid Grid.Row="1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />   <!-- メディアリスト -->
+            <ColumnDefinition Width="Auto" />   <!-- スプリッター -->
+            <ColumnDefinition Width="*" />    <!-- 編集画面 -->
+          </Grid.ColumnDefinitions>
+
+          <views:MediaListView Grid.Column="0" VerticalAlignment="Stretch"
+            DataContext="{Binding MediaListViewContext}" />
+
+          <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Center"
+            Width="2" Background="{DynamicResource MaterialDesign.Brush.Primary}" />
+
+          <views:EditView Grid.Column="2" DataContext="{Binding EditViewContext}" />
+        </Grid>
+
+        <Border Grid.Row="2" Background="{DynamicResource MaterialDesign.Brush.Primary}">
+          <views:ExecutionView Margin="4" DataContext="{Binding ExecutionViewContext}" />
+        </Border>
+
       </Grid>
     </Grid>
-  </Grid>
+  </mate:DialogHost>
 </Window>

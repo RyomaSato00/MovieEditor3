@@ -1,0 +1,214 @@
+<UserControl x:Class="MovieEditor3.Wpf.Views.MediaPlayerView"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:local="clr-namespace:MovieEditor3.Wpf.Views" mc:Ignorable="d" d:DesignHeight="450"
+  xmlns:convert="clr-namespace:MovieEditor3.Wpf.Converters"
+  xmlns:mate="http://materialdesigninxaml.net/winfx/xaml/themes"
+  xmlns:xaml="http://schemas.microsoft.com/xaml/behaviors"
+  xmlns:messenger="clr-namespace:MovieEditor3.Wpf.Messengers" d:DesignWidth="800">
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary
+          Source="pack://application:,,,/MovieEditor3.Wpf;component/Resources/SimpleToggleButton.xaml" />
+        <ResourceDictionary>
+          <Storyboard x:Key="MediaStory" SlipBehavior="Slip">
+            <MediaTimeline Storyboard.TargetName="MediaPlayer"
+              CurrentTimeInvalidated="Timeline_CurrentTimeInvalidated"
+              Completed="Timeline_Completed">
+            </MediaTimeline>
+          </Storyboard>
+          <convert:TimeSpanCustomConverter x:Key="TimeSpanCustomConverter" />
+          <convert:BooleanToVisibilityCustomConverter x:Key="BooleanToVisibilityCustomConverter" />
+          <BooleanToVisibilityConverter x:Key="Bool2VisibilityConverter" />
+        </ResourceDictionary>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </UserControl.Resources>
+
+  <xaml:Interaction.Triggers>
+    <xaml:PropertyChangedTrigger Binding="{Binding SetupReq}">
+      <messenger:SetupMediaPlayerAction />
+    </xaml:PropertyChangedTrigger>
+
+    <xaml:PropertyChangedTrigger Binding="{Binding LoadMediaReq}">
+      <messenger:LoadMediaAction />
+    </xaml:PropertyChangedTrigger>
+
+    <xaml:PropertyChangedTrigger Binding="{Binding PlayReq}">
+      <messenger:PlayAction />
+    </xaml:PropertyChangedTrigger>
+
+    <xaml:PropertyChangedTrigger Binding="{Binding PauseReq}">
+      <messenger:PauseAction />
+    </xaml:PropertyChangedTrigger>
+
+    <xaml:PropertyChangedTrigger Binding="{Binding MuteReq}">
+      <messenger:MuteAction />
+    </xaml:PropertyChangedTrigger>
+
+    <xaml:PropertyChangedTrigger Binding="{Binding SeekReq}">
+      <messenger:SeekAction />
+    </xaml:PropertyChangedTrigger>
+  </xaml:Interaction.Triggers>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />    <!-- プレイヤー -->
+      <RowDefinition Height="Auto" />   <!-- スライダー -->
+      <RowDefinition Height="Auto" />   <!-- コマンドボタン -->
+    </Grid.RowDefinitions>
+
+    <Border Grid.Row="0" Background="Black">
+      <Grid>
+        <MediaElement x:Name="MediaPlayer" Grid.Row="0" LoadedBehavior="Manual"
+          ScrubbingEnabled="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+          MediaOpened="MediaPlayer_MediaOpened" RenderTransformOrigin="0.5,0.5">
+        </MediaElement>
+        <Border x:Name="MediaPlayerHighlight" Opacity="0.8" Background="Transparent"
+          Width="{Binding ActualWidth, ElementName=MediaPlayer}"
+          Height="{Binding ActualHeight, ElementName=MediaPlayer}">
+          <xaml:Interaction.Triggers>
+            <xaml:EventTrigger EventName="MouseLeftButtonDown">
+              <xaml:InvokeCommandAction Command="{Binding ToggleMediaAutoCommand}" />
+            </xaml:EventTrigger>
+          </xaml:Interaction.Triggers>
+          <mate:PackIcon Width="48" Height="48" HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <mate:PackIcon.Style>
+              <Style TargetType="mate:PackIcon">
+                <Setter Property="Kind" Value="Play" />
+                <Setter Property="Foreground" Value="Transparent" />
+                <Style.Triggers>
+                  <DataTrigger
+                    Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Border}}"
+                    Value="True">
+                    <Setter Property="Foreground"
+                      Value="{DynamicResource MaterialDesign.Brush.Foreground}" />
+                  </DataTrigger>
+                  <DataTrigger Binding="{Binding IsPlaying}" Value="True">
+                    <Setter Property="Kind" Value="Pause" />
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </mate:PackIcon.Style>
+          </mate:PackIcon>
+        </Border>
+        <Grid
+          Visibility="{Binding IsCropAreaVisible, Converter={StaticResource Bool2VisibilityConverter}}">
+          <local:CropArea DataContext="{Binding CropAreaContext}"
+            Width="{Binding ActualWidth, ElementName=MediaPlayer}"
+            Height="{Binding ActualHeight, ElementName=MediaPlayer}" />
+        </Grid>
+      </Grid>
+    </Border>
+
+    <Slider Grid.Row="1" VerticalAlignment="Center" Margin="8"
+      Maximum="{Binding Duration.TotalMilliseconds, Mode=OneWay}"
+      Value="{Binding CurrentTime.TotalMilliseconds, Mode=OneWay}" IsSelectionRangeEnabled="True"
+      SelectionStart="{Binding StartPoint.TotalMilliseconds, Mode=OneWay}"
+      SelectionEnd="{Binding EndPoint.TotalMilliseconds, Mode=OneWay}">
+      <xaml:Interaction.Triggers>
+        <xaml:EventTrigger EventName="ValueChanged">
+          <xaml:InvokeCommandAction Command="{Binding SliderValueChangedCommand}"
+            PassEventArgsToCommand="True" />
+        </xaml:EventTrigger>
+      </xaml:Interaction.Triggers>
+    </Slider>
+
+    <Grid Grid.Row="2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />   <!-- 前へ -->
+        <ColumnDefinition Width="Auto" />   <!-- 再生/一時停止 -->
+        <ColumnDefinition Width="Auto" />   <!-- 次へ -->
+        <ColumnDefinition Width="Auto" />   <!-- 音量 -->
+        <ColumnDefinition Width="Auto" />   <!-- 再生時間 -->
+      </Grid.ColumnDefinitions>
+
+      <Button Grid.Column="0" VerticalAlignment="Center" Command="{Binding SkipPreviousCommand}"
+        Style="{StaticResource MaterialDesignIconForegroundButton}">
+        <mate:PackIcon Kind="SkipPrevious" Width="18" Height="18" />
+      </Button>
+
+      <!-- 再生/一時停止 -->
+      <ToggleButton Grid.Column="1" IsChecked="{Binding IsPlaying}" VerticalAlignment="Center"
+        Command="{Binding ToggleMediaCommand}"
+        CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}">
+        <!--IsChecked=FalseのときはPlayアイコン、IsChecked=TrueのときはPauseアイコンを表示する-->
+        <ToggleButton.Style>
+          <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignFlatToggleButton}">
+            <Setter Property="Content">
+              <Setter.Value>
+                <mate:PackIcon Kind="Play" Width="18" Height="18" />
+              </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+              <!-- IsChecked=Trueのとき、Propertyを以下のように変更する-->
+              <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Content">
+                  <Setter.Value>
+                    <mate:PackIcon Kind="Pause" Width="18" Height="18" />
+                  </Setter.Value>
+                </Setter>
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </ToggleButton.Style>
+      </ToggleButton>
+
+      <Button Grid.Column="1" VerticalAlignment="Center"
+        Background="{DynamicResource MaterialDesign.Brush.Background}"
+        Visibility="{Binding IsStoryCompleted, Converter={StaticResource BooleanToVisibilityCustomConverter}}"
+        Command="{Binding ReplayCommand}"
+        Style="{StaticResource MaterialDesignIconForegroundButton}">
+        <mate:PackIcon Kind="Replay" Width="18" Height="18" />
+      </Button>
+
+
+      <Button Grid.Column="2" VerticalAlignment="Center"
+        Style="{StaticResource MaterialDesignIconForegroundButton}">
+        <mate:PackIcon Kind="SkipNext" Width="18" Height="18" />
+      </Button>
+
+      <!-- 音あり/音なし -->
+      <ToggleButton Grid.Column="3" IsChecked="{Binding IsMute}" VerticalAlignment="Center"
+        Command="{Binding ToggleMuteCommand}"
+        CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}">
+        <ToggleButton.Style>
+          <Style TargetType="ToggleButton" BasedOn="{StaticResource SimpleToggleButtonStyle}">
+            <Setter Property="Content">
+              <Setter.Value>
+                <mate:PackIcon Kind="VolumeHigh" Width="18" Height="18" />
+              </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+              <!-- IsChecked=Trueのとき、Propertyを以下のように変更する-->
+              <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Content">
+                  <Setter.Value>
+                    <mate:PackIcon Kind="VolumeMute" Width="18" Height="18" />
+                  </Setter.Value>
+                </Setter>
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </ToggleButton.Style>
+      </ToggleButton>
+
+
+      <TextBlock Grid.Column="4" VerticalAlignment="Center" FontFamily="Consolas" Margin="12,0,0,0">
+        <TextBlock.Text>
+          <MultiBinding StringFormat="{}{0} / {1}">
+            <Binding Path="CurrentTime" Converter="{StaticResource TimeSpanCustomConverter}" />
+            <Binding Path="Duration" Converter="{StaticResource TimeSpanCustomConverter}" />
+          </MultiBinding>
+        </TextBlock.Text>
+      </TextBlock>
+
+    </Grid>
+  </Grid>
+</UserControl>

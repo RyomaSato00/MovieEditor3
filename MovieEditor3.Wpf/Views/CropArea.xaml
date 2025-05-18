@@ -1,0 +1,62 @@
+<UserControl x:Class="MovieEditor3.Wpf.Views.CropArea"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:local="clr-namespace:MovieEditor3.Wpf.Views" mc:Ignorable="d" d:DesignHeight="450"
+  xmlns:xaml="http://schemas.microsoft.com/xaml/behaviors"
+  xmlns:messenger="clr-namespace:MovieEditor3.Wpf.Messengers" d:DesignWidth="800">
+  <UserControl.Resources>
+    <Style x:Key="EdgeEllipseStyle" TargetType="Ellipse">
+      <Setter Property="Width" Value="64" />
+      <Setter Property="Height" Value="64" />
+      <Setter Property="Fill" Value="{DynamicResource MaterialDesign.Brush.Foreground}" />
+      <Setter Property="Opacity" Value="0.2" />
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Opacity" Value="0.6" />
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+  </UserControl.Resources>
+
+  <xaml:Interaction.Triggers>
+    <xaml:PropertyChangedTrigger Binding="{Binding SetupCropAreaReq}">
+      <messenger:SetupCropAreaAction />
+    </xaml:PropertyChangedTrigger>
+  </xaml:Interaction.Triggers>
+
+  <Grid>
+    <!-- 範囲指定用キャンバス -->
+    <Canvas x:Name="ParentCanvas" Background="Black" Opacity="0.5"
+      SizeChanged="ParentCanvas_SizeChanged">
+      <Canvas.Clip>
+        <CombinedGeometry GeometryCombineMode="Exclude">
+          <CombinedGeometry.Geometry1>
+            <!-- Canvas全体の矩形 -->
+            <RectangleGeometry x:Name="BaseGeometry" Rect="0,0,100,100" />
+          </CombinedGeometry.Geometry1>
+          <CombinedGeometry.Geometry2>
+            <!-- くり抜かれる矩形 -->
+            <RectangleGeometry x:Name="CropGeometry" Rect="100,100,100,100" />
+          </CombinedGeometry.Geometry2>
+        </CombinedGeometry>
+      </Canvas.Clip>
+    </Canvas>
+
+    <!-- エッジ表示用キャンバス -->
+    <Canvas x:Name="EdgeCanvas" Background="Transparent" ClipToBounds="True"
+      MouseMove="Edge_MouseMove">
+      <Path x:Name="EdgeBorder" Stroke="{DynamicResource MaterialDesign.Brush.Primary}"
+        StrokeThickness="2" />
+      <Ellipse x:Name="TopLeftEdge" Style="{StaticResource EdgeEllipseStyle}"
+        MouseLeftButtonDown="Edge_MouseLeftButtonDown" MouseLeftButtonUp="Edge_MouseLeftButtonUp" />
+      <Ellipse x:Name="TopRightEdge" Style="{StaticResource EdgeEllipseStyle}"
+        MouseLeftButtonDown="Edge_MouseLeftButtonDown" MouseLeftButtonUp="Edge_MouseLeftButtonUp" />
+      <Ellipse x:Name="BottomRightEdge" Style="{StaticResource EdgeEllipseStyle}"
+        MouseLeftButtonDown="Edge_MouseLeftButtonDown" MouseLeftButtonUp="Edge_MouseLeftButtonUp" />
+      <Ellipse x:Name="BottomLeftEdge" Style="{StaticResource EdgeEllipseStyle}"
+        MouseLeftButtonDown="Edge_MouseLeftButtonDown" MouseLeftButtonUp="Edge_MouseLeftButtonUp" />
+    </Canvas>
+  </Grid>
+</UserControl>

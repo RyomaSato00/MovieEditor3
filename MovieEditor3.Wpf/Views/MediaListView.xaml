@@ -1,4 +1,4 @@
-<UserControl x:Class="MovieEditor3.Wpf.Views.MovieListView"
+<UserControl x:Class="MovieEditor3.Wpf.Views.MediaListView"
   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -6,11 +6,20 @@
   xmlns:local="clr-namespace:MovieEditor3.Wpf.Views" mc:Ignorable="d" d:DesignHeight="450"
   xmlns:mate="http://materialdesigninxaml.net/winfx/xaml/themes"
   xmlns:xaml="http://schemas.microsoft.com/xaml/behaviors"
+  xmlns:behavior="clr-namespace:MovieEditor3.Wpf.Behaviors"
   d:DesignWidth="800">
-  <Grid>
-    <!-- ドロップエリア用キャンバス-->
-    <Canvas Background="Transparent" />
+  <xaml:Interaction.Behaviors>
+    <behavior:FileDropBehavior />
+  </xaml:Interaction.Behaviors>
+  
+  <!-- ドロップイベントをバインド -->
+  <xaml:Interaction.Triggers>
+    <xaml:EventTrigger EventName="Drop">
+      <xaml:InvokeCommandAction Command="{Binding DropCommand}" PassEventArgsToCommand="True" />
+    </xaml:EventTrigger>
+  </xaml:Interaction.Triggers>
 
+  <Grid>
     <!--DataGridItemからViewModelへアクセスするためのProxy-->
     <FrameworkElement Name="DataContextProxy" DataContext="{Binding}" />
 
@@ -33,7 +42,7 @@
           <!-- 全選択/全非選択操作用チェックボックス -->
           <DataGridCheckBoxColumn.Header>
             <Border Background="Transparent">
-              <CheckBox IsChecked="{Binding DataContext.IsAllSelected, Source={x:Reference DataContextProxy}}">
+              <CheckBox IsChecked="{Binding DataContext.IsAllSelected.Value, Source={x:Reference DataContextProxy}}">
                 <xaml:Interaction.Triggers>
                   <!-- チェックイベントをバインド -->
                   <xaml:EventTrigger EventName="Checked">
@@ -60,7 +69,7 @@
         <DataGridTemplateColumn Header="サムネイル">
           <DataGridTemplateColumn.CellTemplate>
             <DataTemplate>
-              <Image Source="{Binding ThumbnailPath}" Height="72" Width="128" />
+              <Image Source="{Binding StartPointImagePath}" Height="72" Width="128" />
             </DataTemplate>
           </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>
@@ -71,7 +80,8 @@
             <DataTemplate>
               <Button Style="{StaticResource MaterialDesignIconForegroundButton}"
                 Command="{Binding DataContext.DeleteCommand, Source={x:Reference DataContextProxy}}"
-                CommandParameter="{Binding}" >
+                CommandParameter="{Binding}"
+                ToolTip="削除" >
                 <mate:PackIcon Kind="TrashCanOutline" Width="20" Height="20" />
               </Button>
             </DataTemplate>
@@ -84,7 +94,8 @@
             <DataTemplate>
               <Button Style="{StaticResource MaterialDesignIconForegroundButton}"
                 Command="{Binding DataContext.CloneCommand, Source={x:Reference DataContextProxy}}"
-                CommandParameter="{Binding}" >
+                CommandParameter="{Binding}"
+                ToolTip="複製" >
                 <mate:PackIcon Kind="ContentCopy" Width="20" Height="20" />
               </Button>
             </DataTemplate>

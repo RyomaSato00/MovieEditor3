@@ -5,6 +5,8 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 
+using MovieEditor3.Wpf.Programs;
+
 namespace MovieEditor3.Wpf;
 
 /// <summary>
@@ -39,10 +41,15 @@ public partial class App : Application
 
         Debug.WriteLine($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss:fff}] The application has started.");
 
+        // JSONファイルからユーザー設定を読み込む
+        JsonHandler.Load();
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
+        // JSONファイルにユーザー設定を保存
+        JsonHandler.Save();
+
         base.OnExit(e);
 
         Debug.WriteLine($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff}] The application has exited.");
