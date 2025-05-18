@@ -16,11 +16,6 @@ namespace MovieEditor3.Wpf.ViewModels;
 internal partial class CropAreaViewModel : ObservableObject
 {
     /// <summary>
-    /// クロップ領域のセットアップリクエスト
-    /// </summary>
-    [ObservableProperty] private SetupCropAreaRequest? _setupCropAreaReq = null;
-
-    /// <summary>
     /// アイテム別のクロップ情報を提供するプロパティ
     /// </summary>
     private ICropProperty? _property = null;
@@ -30,22 +25,16 @@ internal partial class CropAreaViewModel : ObservableObject
     /// </summary>
     private readonly Subject<Rect> _cropAreaChanged = new();
 
-    /// <summary>
-    /// キャンバスサイズ変更通知用のサブジェクト
-    /// </summary>
-    private readonly Subject<Rect> _canvasSizeChanged = new();
+    [ObservableProperty] private SetupCropAreaRequest? _setupCropAreaReq = null;
+    [ObservableProperty] private CropActionRequest? _clearCropAreaReq = null;
+    [ObservableProperty] private SetCropAreaRequest? _setCropAreaReq = null;
 
-    /// <summary>
-    /// キャンバスのサイズ情報
-    /// </summary>
-    private Rect _canvasSize = Rect.Empty;
 
     public CropAreaViewModel()
     {
         _cropAreaChanged.Subscribe(UpdateCropArea);
-        _canvasSizeChanged.Subscribe(size => _canvasSize = size);
 
-        SetupCropAreaReq = new SetupCropAreaRequest { CropAreaChanged = _cropAreaChanged, CanvasSizeChanged = _canvasSizeChanged };
+        SetupCropAreaReq = new SetupCropAreaRequest { CropAreaChanged = _cropAreaChanged };
     }
 
     /// <summary>
@@ -55,43 +44,86 @@ internal partial class CropAreaViewModel : ObservableObject
     public void LoadCropAreaInfo(ICropProperty property)
     {
         _property = property;
+        if (Rect.Empty == property.CropRect)
+        {
+            ClearCropArea();
+        }
+        else
+        {
+            SetCropArea(property.CropRect);
+        }
     }
 
     /// <summary>
     /// クロップ領域を更新します
     /// </summary>
-    /// <param name="area">更新するクロップ領域</param>
-    private void UpdateCropArea(Rect area)
+    /// <param name="relativeRect">更新するクロップ領域</param>
+    private void UpdateCropArea(Rect relativeRect)
     {
         if (_property is not null)
         {
-            _property.CropRect = AreaSizeToMovieSize(area);
+            _property.CropRect = RelativeToMovieSize(relativeRect);
         }
     }
 
     /// <summary>
-    /// UI上のクロップ領域サイズを実際の動画サイズに変換します
+    /// 相対座標系のクロップ領域を実際の動画サイズの座標系に変換します
     /// </summary>
-    /// <param name="areaSize">UI上のクロップ領域サイズ</param>
+    /// <param name="relativeRect">相対座標系（0.0～1.0の範囲）のクロップ領域</param>
     /// <returns>実際の動画サイズに変換されたクロップ領域</returns>
-    private Rect AreaSizeToMovieSize(Rect areaSize)
+    private Rect RelativeToMovieSize(Rect relativeRect)
     {
         var result = Rect.Empty;
 
-        if (_property is ICropProperty info
-        && _canvasSize != Rect.Empty
-        && _canvasSize.Width != 0
-        && _canvasSize.Height != 0)
+        if (_property is ICropProperty info)
         {
             result = new Rect
             {
-                X = areaSize.X * info.OriginalWidth / _canvasSize.Width,
-                Y = areaSize.Y * info.OriginalHeight / _canvasSize.Height,
-                Width = areaSize.Width * info.OriginalWidth / _canvasSize.Width,
-                Height = areaSize.Height * info.OriginalHeight / _canvasSize.Height,
+                X = relativeRect.X * info.OriginalWidth,
+                Y = relativeRect.Y * info.OriginalHeight,
+                Width = relativeRect.Width * info.OriginalWidth,
+                Height = relativeRect.Height * info.OriginalHeight,
             };
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// 実際の動画サイズの座標系のクロップ領域を相対座標系に変換します
+    /// </summary>
+    /// <param name="movieSizeRect">実際の動画サイズの座標系のクロップ領域</param>
+    /// <returns>相対座標系（0.0～1.0の範囲）に変換されたクロップ領域</returns>
+    private Rect MovieSizeToRelative(Rect movieSizeRect)
+    {
+        var result = Rect.Empty;
+
+        if (_property is ICropProperty info
+        && 0 != info.OriginalWidth && 0 != info.OriginalHeight)
+        {
+            result = new Rect
+            {
+                X = movieSizeRect.X / info.OriginalWidth,
+                Y = movieSizeRect.Y / info.OriginalHeight,
+                Width = movieSizeRect.Width / info.OriginalWidth,
+                Height = movieSizeRect.Height / info.OriginalHeight,
+            };
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// クロップ領域をクリアします
+    /// </summary>
+    public void ClearCropArea() => ClearCropAreaReq = new CropActionRequest();
+
+    /// <summary>
+    /// クロップ領域を設定するトリガーアクション
+    /// </summary>
+    private void SetCropArea(Rect movieSizeRect)
+    {
+        var relativeRect = MovieSizeToRelative(movieSizeRect);
+        SetCropAreaReq = new SetCropAreaRequest { RelativeCropArea = relativeRect };
     }
 }

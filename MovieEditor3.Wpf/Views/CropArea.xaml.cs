@@ -30,11 +30,6 @@ public partial class CropArea : UserControl
     /// </summary>
     private IObserver<Rect>? _cropAreaChanged = null;
 
-    /// <summary>
-    /// キャンバスサイズ変更通知用のオブザーバー
-    /// </summary>
-    private IObserver<Rect>? _canvasSizeChanged = null;
-
     public CropArea()
     {
         InitializeComponent();
@@ -45,10 +40,34 @@ public partial class CropArea : UserControl
     /// </summary>
     /// <param name="cropAreaChanged">クロップ領域変更通知用のオブザーバー</param>
     /// <param name="canvasSizeChanged">キャンバスサイズ変更通知用のオブザーバー</param>
-    public void Setup(IObserver<Rect> cropAreaChanged, IObserver<Rect> canvasSizeChanged)
+    public void Setup(IObserver<Rect> cropAreaChanged)
     {
         _cropAreaChanged = cropAreaChanged;
-        _canvasSizeChanged = canvasSizeChanged;
+    }
+
+    /// <summary>
+    /// 相対座標系からクロップ領域を設定します
+    /// </summary>
+    /// <param name="relativeRect">相対座標系（0.0～1.0の範囲）のクロップ領域</param>
+    /// <remarks>
+    /// この方法は、相対座標系の矩形をUserControl基準の座標系に変換してから
+    /// クロップ領域を更新します
+    /// </remarks>
+    public void SetCropArea(Rect relativeRect)
+    {
+        UpdateArea(RelativeToAreaRect(relativeRect));
+    }
+
+    /// <summary>
+    /// クロップ領域を初期状態（全体表示）にリセットします
+    /// </summary>
+    /// <remarks>
+    /// この方法は、クロップ領域を親キャンバスの全体サイズに設定します
+    /// </remarks>
+    public void ClearCropArea()
+    {
+        var initialRect = new Rect(0, 0, ParentCanvas.ActualWidth, ParentCanvas.ActualHeight);
+        UpdateArea(initialRect);
     }
 
     /// <summary>
@@ -78,15 +97,13 @@ public partial class CropArea : UserControl
         {
             UpdateArea(new Rect(0, 0, e.NewSize.Width, e.NewSize.Height));
         }
-
-        _canvasSizeChanged?.OnNext(new Rect(0, 0, e.NewSize.Width, e.NewSize.Height));
     }
 
     /// <summary>
     /// エッジ、キャンバス等のUI表示を更新する
     /// </summary>
     /// <param name="areaRect">クリッピング範囲（UserControl基準）</param>
-    public void UpdateArea(Rect areaRect)
+    private void UpdateArea(Rect areaRect)
     {
         CropGeometry.Rect = areaRect;
 
@@ -168,8 +185,7 @@ public partial class CropArea : UserControl
         UpdateArea(areaRect);
 
         // クリッピング範囲変更通知
-        _cropAreaChanged?.OnNext(areaRect);
-        // OnClipRectChanged?.Invoke(areaRect);
+        _cropAreaChanged?.OnNext(AreaRectToRelative(areaRect));
     }
 
     /// <summary>
@@ -278,6 +294,64 @@ public partial class CropArea : UserControl
         }
 
         return new Rect(topLeft, bottomRight);
+    }
+
+    /// <summary>
+    /// UserControl基準のクロップ領域を相対座標系に変換します
+    /// </summary>
+    /// <param name="areaRect">UserControl基準のクロップ領域</param>
+    /// <returns>相対座標系（0.0～1.0の範囲）に変換されたクロップ領域</returns>
+    /// <remarks>
+    /// この方法は、親キャンバスのサイズを基準にして座標を正規化します
+    /// </remarks>
+    private Rect AreaRectToRelative(Rect areaRect)
+    {
+        var result = Rect.Empty;
+
+        var parentWidth = ParentCanvas.ActualWidth;
+        var parentHeight = ParentCanvas.ActualHeight;
+
+        if (0 < parentWidth && 0 < parentHeight)
+        {
+            result = new Rect
+            {
+                X = areaRect.X / parentWidth,
+                Y = areaRect.Y / parentHeight,
+                Width = areaRect.Width / parentWidth,
+                Height = areaRect.Height / parentHeight,
+            };
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 相対座標系のクロップ領域をUserControl基準の座標系に変換します
+    /// </summary>
+    /// <param name="relativeRect">相対座標系（0.0～1.0の範囲）のクロップ領域</param>
+    /// <returns>UserControl基準の座標系に変換されたクロップ領域</returns>
+    /// <remarks>
+    /// この方法は、相対座標を親キャンバスのサイズに基づいて実際の座標に変換します
+    /// </remarks>
+    private Rect RelativeToAreaRect(Rect relativeRect)
+    {
+        var result = Rect.Empty;
+
+        var parentWidth = ParentCanvas.ActualWidth;
+        var parentHeight = ParentCanvas.ActualHeight;
+
+        if (0 < parentWidth && 0 < parentHeight)
+        {
+            result = new Rect
+            {
+                X = relativeRect.X * parentWidth,
+                Y = relativeRect.Y * parentHeight,
+                Width = relativeRect.Width * parentWidth,
+                Height = relativeRect.Height * parentHeight,
+            };
+        }
+
+        return result;
     }
 }
 

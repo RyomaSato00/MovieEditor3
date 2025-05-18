@@ -57,6 +57,7 @@ internal partial class EditViewModel : ObservableObject
         // イベント設定
         MovieEditViewContext.StartPointChangeRequested.Subscribe(_ => ChangeStartPoint());
         MovieEditViewContext.EndPointChangeRequested.Subscribe(_ => ChangeEndPoint());
+        CropEditViewContext.OnClearCropAreaRequested.Subscribe(_ => MediaPlayerViewContext.ClearCropArea());
     }
 
     /// <summary>

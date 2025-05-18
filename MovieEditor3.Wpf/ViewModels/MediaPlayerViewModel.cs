@@ -50,12 +50,12 @@ internal partial class MediaPlayerViewModel : ObservableObject
     /// <summary>
     /// 編集の開始ポイント
     /// </summary>
-    [ObservableProperty] private TimeSpan _startPoint = TimeSpan.Zero;
+    [ObservableProperty] private TimeSpan? _startPoint = TimeSpan.Zero;
 
     /// <summary>
     /// 編集の終了ポイント
     /// </summary>
-    [ObservableProperty] private TimeSpan _endPoint = TimeSpan.Zero;
+    [ObservableProperty] private TimeSpan? _endPoint = TimeSpan.Zero;
 
     /// <summary>
     /// クロップ領域が表示されているかどうかを示す値
@@ -171,6 +171,8 @@ internal partial class MediaPlayerViewModel : ObservableObject
     /// <param name="itemInfo">読み込むメディアのアイテム情報</param>
     public void LoadMedia(ItemInfo itemInfo)
     {
+        StartPoint = itemInfo.StartPoint;
+        EndPoint = itemInfo.EndPoint;
         IsPlaying = false;
         IsStoryCompleted = false;
         CurrentTime = TimeSpan.Zero;
@@ -203,6 +205,18 @@ internal partial class MediaPlayerViewModel : ObservableObject
     public void ToggleCropAreaVisibility(bool isibility)
     {
         IsCropAreaVisible = isibility;
+    }
+
+    /// <summary>
+    /// クロップ領域をクリアします
+    /// </summary>
+    /// <remarks>
+    /// このメソッドは、CropAreaContextのClearCropAreaメソッドを呼び出して
+    /// クロップ領域の設定をリセットします
+    /// </remarks>
+    public void ClearCropArea()
+    {
+        CropAreaContext.ClearCropArea();
     }
 
     /// <summary>

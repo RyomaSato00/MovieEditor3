@@ -7,12 +7,7 @@
   xmlns:mate="http://materialdesigninxaml.net/winfx/xaml/themes" d:DesignWidth="800">
   <Grid>
     <StackPanel>
-      <DockPanel LastChildFill="False">
-        <TextBlock DockPanel.Dock="Left" Text="エリア切り抜き有効：" VerticalAlignment="Center" />
-        <ToggleButton DockPanel.Dock="Right" IsChecked="{Binding IsCropEnabled.Value}"
-          VerticalAlignment="Center" />
-      </DockPanel>
-      <Button Command="{Binding ResetCropAreaCommand}" Width="160" Height="60" Margin="0,30,0,0"
+      <Button Command="{Binding ClearCropAreaCommand}" Width="160" Height="60" Margin="0,30,0,0"
         HorizontalAlignment="Center" Style="{StaticResource MaterialDesignPaperButton}">
         <StackPanel>
           <mate:PackIcon Kind="Reload" Width="20" Height="20" HorizontalAlignment="Center" />

@@ -12,7 +12,7 @@
         <TextBlock Text="{Binding ProcessCount, StringFormat= / {0}}" FontFamily="Consolas" />
       </StackPanel>
 
-      <ProgressBar Margin="0,8,0,0" Value="{Binding ProgressCount}" Maximum="{Binding ProcessCount}"
+      <ProgressBar Margin="0,0,0,24" Value="{Binding ProgressCount}" Maximum="{Binding ProcessCount}"
         Width="300" />
 
       <DockPanel LastChildFill="False">

@@ -24,6 +24,14 @@
     <xaml:PropertyChangedTrigger Binding="{Binding SetupCropAreaReq}">
       <messenger:SetupCropAreaAction />
     </xaml:PropertyChangedTrigger>
+
+    <xaml:PropertyChangedTrigger Binding="{Binding ClearCropAreaReq}">
+      <messenger:ClearCropAreaAction />
+    </xaml:PropertyChangedTrigger>
+
+    <xaml:PropertyChangedTrigger Binding="{Binding SetCropAreaReq}">
+      <messenger:SetCropAreaAction />
+    </xaml:PropertyChangedTrigger>
   </xaml:Interaction.Triggers>
 
   <Grid>

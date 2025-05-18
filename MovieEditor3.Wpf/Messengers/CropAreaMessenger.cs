@@ -13,7 +13,31 @@ internal class SetupCropAreaAction : TriggerAction<CropArea>
         if (parameter is DependencyPropertyChangedEventArgs e
         && e.NewValue is SetupCropAreaRequest request)
         {
-            AssociatedObject.Setup(request.CropAreaChanged, request.CanvasSizeChanged);
+            AssociatedObject.Setup(request.CropAreaChanged);
+        }
+    }
+}
+
+internal class ClearCropAreaAction : TriggerAction<CropArea>
+{
+    protected override void Invoke(object parameter)
+    {
+        if (parameter is DependencyPropertyChangedEventArgs e
+        && e.NewValue is CropActionRequest)
+        {
+            AssociatedObject.ClearCropArea();
+        }
+    }
+}
+
+internal class SetCropAreaAction : TriggerAction<CropArea>
+{
+    protected override void Invoke(object parameter)
+    {
+        if (parameter is DependencyPropertyChangedEventArgs e
+        && e.NewValue is SetCropAreaRequest request)
+        {
+            AssociatedObject.SetCropArea(request.RelativeCropArea);
         }
     }
 }
@@ -21,5 +45,11 @@ internal class SetupCropAreaAction : TriggerAction<CropArea>
 internal class SetupCropAreaRequest
 {
     public required IObserver<Rect> CropAreaChanged { get; init; }
-    public required IObserver<Rect> CanvasSizeChanged { get; init; }
+}
+
+internal class CropActionRequest { }
+
+internal class SetCropAreaRequest
+{
+    public required Rect RelativeCropArea { get; init; }
 }
