@@ -34,9 +34,20 @@ internal partial class MainWindowViewModel : ObservableObject
     public EditViewModel EditViewContext { get; } = new();
 
     /// <summary>
+    /// ヘッダービュー用ViewModel
+    /// </summary>
+    /// <returns></returns>
+    public HeaderViewModel HeaderViewContext { get; }
+
+    /// <summary>
     /// 実行操作用ViewModel
     /// </summary>
     public ExecutionViewModel ExecutionViewContext { get; } = new();
+
+/// <summary>
+    /// 設定ダイアログ用ViewModel
+    /// </summary>
+    public SettingDialogViewModel SettingDialogContext { get; }
 
     /// <summary>
     /// コマンド確認ダイアログ用ViewModel
@@ -59,14 +70,15 @@ internal partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private bool _isContentVisible = false;
 
     [ObservableProperty] private ShowDialogRequest? _showCommandCheckDialogReq = null;
-
     [ObservableProperty] private ShowDialogRequest? _showProgressDialogReq = null;
-
     [ObservableProperty] private ShowDialogRequest? _showDeleteDialogReq = null;
+    [ObservableProperty] private ShowDialogRequest? _showSettingDialogReq = null;
 
     public MainWindowViewModel(UserSetting userSetting)
     {
         MediaListViewContext = new MediaListViewModel(userSetting);
+        HeaderViewContext = new HeaderViewModel(userSetting);
+        SettingDialogContext = new SettingDialogViewModel(userSetting);
 
         // 各種イベント設定
         EmptyStateViewContext.OnNewFilesAdded.Subscribe(files => _ = MediaListViewContext.AddItemsAsync(files));
@@ -74,7 +86,17 @@ internal partial class MainWindowViewModel : ObservableObject
         MediaListViewContext.IsEmpty.Subscribe(isEmpty => IsContentVisible = false == isEmpty);
         MediaListViewContext.OnSelected.Subscribe(EditViewContext.SelectItem);
         MediaListViewContext.IsAllSelected.Subscribe(isSelected => ExecutionViewContext.IsExecutionEnabled.Value = isSelected ?? true);
+        HeaderViewContext.OpenSettingRequested.Subscribe(_ => ShowSettingDialogReq = new ShowDialogRequest());
         ExecutionViewContext.CompCommand.Subscribe(unit => _ = Comp());
+    }
+
+/// <summary>
+    /// ユーザー設定を保存します
+    /// </summary>
+    /// <param name="userSetting">保存先のユーザー設定オブジェクト</param>
+    public void SaveSetting(UserSetting userSetting)
+    {
+        UserSetting.Copy(SettingDialogContext.UserSettingBackup,  userSetting);
     }
 
     /// <summary>
@@ -121,7 +143,7 @@ internal partial class MainWindowViewModel : ObservableObject
 
         if (isDeleteRequested)
         {
-            MediaListViewContext.RemoveSelectedItems();
+            MediaListViewContext.DeleteSelectedItems();
         }
     }
 

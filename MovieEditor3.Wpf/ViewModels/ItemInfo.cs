@@ -95,7 +95,7 @@ internal partial class ItemInfo : ObservableObject, IMovieEditViewProperty, ICro
     /// </summary>
     /// <param name="itemInfo">コピー元のアイテム情報</param>
     /// <param name="userSetting">ユーザー設定</param>
-    public ItemInfo(ItemInfo itemInfo, UserSetting userSetting) : this(itemInfo.OriginalMediaInfo.FilePath, userSetting)
+    public ItemInfo(ItemInfo itemInfo, UserSetting userSetting) : this(itemInfo.FilePath, userSetting)
     {
         // メディア情報をコピー（ディープコピー）
         OriginalMediaInfo = itemInfo.OriginalMediaInfo with { };

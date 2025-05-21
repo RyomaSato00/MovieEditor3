@@ -93,12 +93,22 @@ internal partial class MediaListViewModel : ObservableObject
     [RelayCommand]
     private void Delete(ItemInfo itemInfo)
     {
+        // 削除実行後に選択されるアイテムのインデックスを取得
         var afterIndex = MediaItems.IndexOf(itemInfo) - 1;
         afterIndex = afterIndex >= 0 ? afterIndex : 0;
 
+        // アイテムを削除
         MediaItems.Remove(itemInfo);
 
-        SelectionChanged(MediaItems[afterIndex]);
+        // 選択状態の変更
+        if (0 < MediaItems.Count)
+        {
+            SelectionChanged(MediaItems[afterIndex]);
+        }
+        else
+        {
+            SelectionChanged(null);
+        }
     }
 
     /// <summary>
@@ -154,12 +164,35 @@ internal partial class MediaListViewModel : ObservableObject
     /// <summary>
     /// 選択状態にあるアイテムをリストから削除する
     /// </summary>
-    public void RemoveSelectedItems()
+    public void DeleteSelectedItems()
     {
-        var selectedItems = MediaItems.Where(item => item.IsSelected);
-        foreach (var item in selectedItems)
+        // 削除するアイテムの中で最も先頭にあるもののインデックスを取得（削除するアイテムがない場合は-1）
+        var firstIndex = MediaItems
+        .Where(item => item.IsSelected)
+        .Select((item, index) => index)
+        .DefaultIfEmpty(-1)
+        .First();
+
+        // 削除を実行した後に選択されるアイテムのインデックスを取得
+        var afterIndex = firstIndex - 1 >= 0 ? firstIndex - 1 : 0;
+
+        // 削除実行
+        for (var i = MediaItems.Count - 1; i >= 0; i--)
         {
-            MediaItems.Remove(item);
+            if (MediaItems[i].IsSelected)
+            {
+                MediaItems.RemoveAt(i);
+            }
+        }
+
+        // 選択状態の変更
+        if (0 < MediaItems.Count)
+        {
+            SelectionChanged(MediaItems[afterIndex]);
+        }
+        else
+        {
+            SelectionChanged(null);
         }
     }
 

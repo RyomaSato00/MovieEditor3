@@ -9,6 +9,13 @@ internal class FFmpegCommandConverter
 
     private const string IMAGE_FORMAT = ".png";
 
+    private static readonly Dictionary<RotateID, string> RotateCommands = new()
+    {
+        { RotateID.Rotate90, "transpose=1" },
+        { RotateID.Rotate180, "transpose=1,transpose=1" },
+        { RotateID.Rotate270, "transpose=2" },
+    };
+
     /// <summary>
     /// 動画圧縮用コマンド生成処理
     /// </summary>
@@ -180,8 +187,8 @@ internal class FFmpegCommandConverter
             if (isScaleReserved)
             {
                 // 元動画のサイズを取得
-                var originWidth = info.OriginalMediaInfo.Width;
-                var originHeight = info.OriginalMediaInfo.Height;
+                var originWidth = info.OriginalWidth;
+                var originHeight = info.OriginalHeight;
 
                 // クリッピング指定あり？
                 if (isClippingReserved)
@@ -202,11 +209,11 @@ internal class FFmpegCommandConverter
             // 回転指定あり
             if (isRotationReserved)
             {
-                var rotateArg = ToRotate(info.Rotation);
+                var isRotateExists = RotateCommands.TryGetValue(info.Rotation, out var rotateCommand);
 
-                if (rotateArg is not null)
+                if (isRotateExists && rotateCommand is not null)
                 {
-                    vfList.Add(rotateArg);
+                    vfList.Add(rotateCommand);
 
                     // 回転後の角度を0度と定義する
                     vfSubList.Add("-metadata:s:v:0 rotate=0");
@@ -306,27 +313,10 @@ internal class FFmpegCommandConverter
 
         var y = info.CropRect.Y >= 0 ? info.CropRect.Y : 0;
 
-        clipWidth = info.CropRect.Width + x <= info.OriginalMediaInfo.Width ? info.CropRect.Width : info.OriginalMediaInfo.Width - x;
+        clipWidth = info.CropRect.Width + x <= info.OriginalWidth ? info.CropRect.Width : info.OriginalWidth - x;
 
-        clipHeight = info.CropRect.Height + y <= info.OriginalMediaInfo.Height ? info.CropRect.Height : info.OriginalMediaInfo.Height - y;
+        clipHeight = info.CropRect.Height + y <= info.OriginalHeight ? info.CropRect.Height : info.OriginalHeight - y;
 
         return $"crop={clipWidth:F2}:{clipHeight:F2}:{x:F2}:{y:F2}";
-    }
-
-    /// <summary>
-    /// 回転のコマンドを生成する
-    /// </summary>
-    /// <param name="rotate"></param>
-    /// <returns></returns>
-    private static string? ToRotate(RotateID rotate)
-    {
-        return rotate switch
-        {
-            RotateID.None => null,
-            RotateID.Rotate90 => "transpose=1",
-            RotateID.Rotate180 => "transpose=1,transpose=1",
-            RotateID.Rotate270 => "transpose=2",
-            _ => null
-        };
     }
 }

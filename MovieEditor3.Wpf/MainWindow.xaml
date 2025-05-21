@@ -17,6 +17,7 @@
       DataContext="{Binding CommandCheckDialogContext}" />
     <views:ProgressDialog x:Key="ProgressDialog" DataContext="{Binding ProgressDialogContext}" />
     <views:YesNoDialog x:Key="DeleteDialog" DataContext="{Binding DeleteDialogContext}" />
+    <views:SettingDialog x:Key="SettingDialog" DataContext="{Binding SettingDialogContext}" />
   </Window.Resources>
 
   <xaml:Interaction.Triggers>
@@ -31,6 +32,10 @@
     <xaml:PropertyChangedTrigger Binding="{Binding ShowDeleteDialogReq}">
       <messenger:ShowDeleteDialogAction />
     </xaml:PropertyChangedTrigger>
+
+    <xaml:PropertyChangedTrigger Binding="{Binding ShowSettingDialogReq}">
+      <messenger:ShowSettingDialogAction />
+    </xaml:PropertyChangedTrigger>
   </xaml:Interaction.Triggers>
   <mate:DialogHost DialogTheme="Inherit">
 
@@ -41,14 +46,13 @@
       <Grid
         Visibility="{Binding IsContentVisible, Converter={StaticResource Bool2VisibilityConverter}}">
         <Grid.RowDefinitions>
-          <RowDefinition Height="50" />   <!-- ヘッダー -->
+          <RowDefinition Height="Auto" />   <!-- ヘッダー -->
           <RowDefinition Height="*" />    <!-- コンテンツ -->
           <RowDefinition Height="Auto" />   <!-- フッター -->
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="{DynamicResource MaterialDesign.Brush.Foreground}"
-          Opacity="0.2">
-          <!-- <Button Click="Button_Click" Content="ダイアログ表示" /> -->
+        <Border Grid.Row="0" Background="{DynamicResource MaterialDesign.Brush.Primary}">
+          <views:HeaderView DataContext="{Binding HeaderViewContext}" />
         </Border>
 
         <Grid Grid.Row="1">

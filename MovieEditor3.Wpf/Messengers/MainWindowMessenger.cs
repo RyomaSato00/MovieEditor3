@@ -43,4 +43,16 @@ internal class ShowDeleteDialogAction : TriggerAction<MainWindow>
     }
 }
 
+internal class ShowSettingDialogAction : TriggerAction<MainWindow>
+{
+    protected override void Invoke(object parameter)
+    {
+        if (parameter is DependencyPropertyChangedEventArgs e
+        && e.NewValue is ShowDialogRequest)
+        {
+            AssociatedObject.ShowSettingDialog();
+        }
+    }
+}
+
 internal class ShowDialogRequest {}

@@ -1,0 +1,55 @@
+<UserControl x:Class="MovieEditor3.Wpf.Views.SettingDialog"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:local="clr-namespace:MovieEditor3.Wpf.Views" mc:Ignorable="d" d:DesignHeight="450"
+  xmlns:mate="http://materialdesigninxaml.net/winfx/xaml/themes" d:DesignWidth="800">
+  <UserControl.Resources>
+    <Style x:Key="TextLabelStyle" TargetType="{x:Type TextBlock}">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="FontFamily" Value="Consolas" />
+    </Style>
+    <Style x:Key="TextBoxStyle" TargetType="{x:Type TextBox}"
+      BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="Padding" Value="2,0,2,0" />
+      <Setter Property="FontFamily" Value="Consolas" />
+      <Setter Property="Width" Value="450" />
+      <Setter Property="Height" Value="40" />
+    </Style>
+  </UserControl.Resources>
+  <Grid Width="600">
+    <StackPanel Margin="16">
+      <StackPanel>
+        <DockPanel LastChildFill="False" Margin="0,0,0,24">
+          <TextBlock DockPanel.Dock="Left" Text="出力先" Style="{StaticResource TextLabelStyle}" />
+          <Button DockPanel.Dock="Right" Command="{Binding SelectOutputDirectoryCommand}"
+            Style="{StaticResource MaterialDesignIconButton}">
+            <mate:PackIcon Kind="FolderOpen" Width="20" Height="20" HorizontalAlignment="Center" />
+          </Button>
+          <TextBox DockPanel.Dock="Right" Text="{Binding OutputDirectory}"
+            Style="{StaticResource TextBoxStyle}" />
+        </DockPanel>
+      </StackPanel>
+      <DockPanel LastChildFill="False">
+        <Button DockPanel.Dock="Right" Command="{Binding CancelCommand}"
+          Style="{StaticResource MaterialDesignPaperButton}" Width="120" Height="50">
+          <StackPanel>
+            <mate:PackIcon Kind="Cancel" Width="20" Height="20" HorizontalAlignment="Center" />
+            <TextBlock Text="キャンセル" HorizontalAlignment="Center" Margin="8,4,8,0" />
+          </StackPanel>
+        </Button>
+        <Button DockPanel.Dock="Right" Command="{Binding DecideCommand}"
+          Style="{StaticResource MaterialDesignRaisedButton}" Width="120" Height="50"
+          Margin="0,0,8,0">
+          <StackPanel>
+            <mate:PackIcon Kind="CheckBold" Width="20" Height="20" HorizontalAlignment="Center" />
+            <TextBlock Text="変更" HorizontalAlignment="Center" Margin="8,4,8,0" />
+          </StackPanel>
+        </Button>
+      </DockPanel>
+    </StackPanel>
+  </Grid>
+</UserControl>

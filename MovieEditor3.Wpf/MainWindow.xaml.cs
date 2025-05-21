@@ -22,6 +22,9 @@ namespace MovieEditor3.Wpf;
 /// </summary>
 public partial class MainWindow : Window
 {
+    /// <summary>
+    /// メインウィンドウのビューモデル
+    /// </summary>
     private readonly MainWindowViewModel _mainWindowViewModel;
 
     public MainWindow()
@@ -34,23 +37,53 @@ public partial class MainWindow : Window
         // WindowとViewModelの紐づけ
         DataContext = _mainWindowViewModel;
 
+        Closing += MainWindow_Closing;
+
     }
 
+    /// <summary>
+    /// ウィンドウが閉じられる際の処理
+    /// </summary>
+    /// <param name="sender">イベント送信元</param>
+    /// <param name="e">イベント引数</param>
+    private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        _mainWindowViewModel.SaveSetting(JsonHandler.Workspace);
+    }
+
+    /// <summary>
+    /// コマンド確認ダイアログを表示します
+    /// </summary>
     public void ShowCommandCheckDialog()
     {
         var dialog = FindResource("CommandCheckDialog");
         DialogHost.Show(dialog);
     }
 
+    /// <summary>
+    /// 進捗ダイアログを表示します
+    /// </summary>
     public void ShowProgressDialog()
     {
         var dialog = FindResource("ProgressDialog");
         DialogHost.Show(dialog);
     }
 
+    /// <summary>
+    /// 削除確認ダイアログを表示します
+    /// </summary>
     public void ShowDeleteDialog()
     {
         var dialog = FindResource("DeleteDialog");
+        DialogHost.Show(dialog);
+    }
+
+    /// <summary>
+    /// 設定ダイアログを表示します
+    /// </summary>
+    public void ShowSettingDialog()
+    {
+        var dialog = FindResource("SettingDialog");
         DialogHost.Show(dialog);
     }
 }

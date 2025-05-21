@@ -7,10 +7,9 @@ namespace MovieEditor3.Wpf.Programs;
 /// </summary>
 internal interface ICompInfo
 {
-    /// <summary>
-    /// オリジナルメディアの情報を取得します
-    /// </summary>
-    public MediaInfo OriginalMediaInfo { get; }
+    public int OriginalWidth { get; }
+
+    public int OriginalHeight { get; }
 
     /// <summary>
     /// メディアファイルのパスを取得します

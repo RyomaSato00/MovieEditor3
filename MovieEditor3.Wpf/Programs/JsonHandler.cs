@@ -51,4 +51,9 @@ internal static class JsonHandler
 internal class UserSetting
 {
     public string OutputDirectory { get; set; } = Environment.CurrentDirectory;
+
+    public static void Copy(UserSetting src, UserSetting dst)
+    {
+        dst.OutputDirectory = src.OutputDirectory;
+    }
 }
