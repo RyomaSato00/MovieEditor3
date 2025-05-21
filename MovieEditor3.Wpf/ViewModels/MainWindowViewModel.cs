@@ -1,3 +1,4 @@
+using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -6,6 +7,8 @@ using System.Windows;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
+using FFMpegCore;
 
 using MovieEditor3.Wpf.Messengers;
 using MovieEditor3.Wpf.Programs;
@@ -44,7 +47,7 @@ internal partial class MainWindowViewModel : ObservableObject
     /// </summary>
     public ExecutionViewModel ExecutionViewContext { get; } = new();
 
-/// <summary>
+    /// <summary>
     /// 設定ダイアログ用ViewModel
     /// </summary>
     public SettingDialogViewModel SettingDialogContext { get; }
@@ -86,23 +89,35 @@ internal partial class MainWindowViewModel : ObservableObject
         MediaListViewContext.IsEmpty.Subscribe(isEmpty => IsContentVisible = false == isEmpty);
         MediaListViewContext.OnSelected.Subscribe(EditViewContext.SelectItem);
         MediaListViewContext.IsAllSelected.Subscribe(isSelected => ExecutionViewContext.IsExecutionEnabled.Value = isSelected ?? true);
+        HeaderViewContext.JoinFilesRequested.Subscribe(_ => JoinFiles());
         HeaderViewContext.OpenSettingRequested.Subscribe(_ => ShowSettingDialogReq = new ShowDialogRequest());
         ExecutionViewContext.CompCommand.Subscribe(unit => _ = Comp());
     }
 
-/// <summary>
+    /// <summary>
     /// ユーザー設定を保存します
     /// </summary>
     /// <param name="userSetting">保存先のユーザー設定オブジェクト</param>
     public void SaveSetting(UserSetting userSetting)
     {
-        UserSetting.Copy(SettingDialogContext.UserSettingBackup,  userSetting);
+        UserSetting.Copy(SettingDialogContext.UserSettingBackup, userSetting);
     }
 
     /// <summary>
-    /// 圧縮処理を実行します
+    /// 選択された動画ファイルの圧縮処理を実行します。
     /// </summary>
     /// <returns>処理の実行タスク</returns>
+    /// <remarks>
+    /// 処理の流れ:
+    /// 1. 選択された各メディアアイテムに対して圧縮用のFFmpegコマンドを生成
+    /// 2. コマンド確認ダイアログを表示し、ユーザーに実行前の確認を求める
+    /// 3. 確認後、進捗ダイアログを表示し、圧縮コマンドを並列実行
+    /// 4. 処理完了後、処理済みファイルをリストから削除するかユーザーに確認
+    /// 5. ユーザーの選択に応じて、処理済みファイルをリストから削除
+    ///
+    /// 圧縮処理では各動画ファイルに対して、設定された圧縮パラメータが適用されます。
+    /// ユーザーは処理の各段階で操作をキャンセルすることができます。
+    /// </remarks>
     private async Task Comp()
     {
         var commandCheckInfos = MediaListViewContext.MediaItems
@@ -145,6 +160,50 @@ internal partial class MainWindowViewModel : ObservableObject
         {
             MediaListViewContext.DeleteSelectedItems();
         }
+    }
+
+    /// <summary>
+    /// 選択された複数の動画ファイルを結合する処理を実行します。
+    /// </summary>
+    /// <remarks>
+    /// 処理の流れ:
+    /// 1. 選択された各メディアアイテムに対して結合用の前処理コマンドを生成
+    /// 2. 進捗ダイアログを表示し、前処理コマンドを並列実行
+    /// 3. 前処理で生成された一時ファイルを使用して、FFMpegのJoin機能で動画を結合
+    /// 4. 結合された動画ファイルをメディアリストに追加
+    ///
+    /// 前処理では各動画ファイルのトリミングや編集が適用され、結合に適した形式に変換されます。
+    /// 結合後のファイルは一意のGUIDを含むファイル名で保存されます。
+    /// </remarks>
+    private async void JoinFiles()
+    {
+        var processItems = MediaListViewContext.SelectedItems
+        .Select(static item => new CommandProcessInfo(FFmpegCommandConverter.ToArrangeCommandForJoin(item)))
+        .ToArray();
+
+        ProgressDialogContext.SetProgress(processItems);
+
+        // 処理進捗ダイアログを表示
+        ShowProgressDialogReq = new ShowDialogRequest();
+
+        await Task.Run(() => ParallelCommandProcessor.Run(processItems));
+
+        ProgressDialogContext.Close();
+
+        // 各結合素材ファイルのパスを取得
+        var outputFiles = processItems
+        .Select(static item => FFmpegCommandConverter.GetOutputFilePathFromCommand(item.Command))
+        .Where(static item => File.Exists(item))
+        .ToArray();
+
+        // 動画結合出力ファイルパスを作成
+        var joinedFilePath = Path.Combine(App.JoinsDirectory, $"joined_{Guid.NewGuid()}.mp4");
+
+        // 動画結合処理を実行
+        FFMpeg.Join(joinedFilePath, outputFiles);
+
+        // 結合後の動画をリストに追加
+        _ = MediaListViewContext.AddItemAsync(joinedFilePath);
     }
 
 }

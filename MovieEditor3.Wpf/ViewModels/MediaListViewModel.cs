@@ -21,7 +21,6 @@ internal partial class MediaListViewModel : ObservableObject
     /// <summary>
     /// 全選択状態を管理するプロパティ（選択・非選択が混在する場合はnull）
     /// </summary>
-    // [ObservableProperty] private bool? _isAllSelected = false;
     public ReactivePropertySlim<bool?> IsAllSelected { get; } = new(false);
 
     /// <summary>
@@ -33,6 +32,11 @@ internal partial class MediaListViewModel : ObservableObject
     /// 選択中のアイテムを監視するReactiveプロパティ
     /// </summary>
     public IReadOnlyReactiveProperty<ItemInfo?> OnSelected => _onSelected;
+
+    /// <summary>
+    /// 現在DataGridで選択されているアイテムのリスト
+    /// </summary>
+    public IReadOnlyList<ItemInfo> SelectedItems => _selectedItems;
 
     /// <summary>
     /// ドロップイベントハンドラ
@@ -54,13 +58,24 @@ internal partial class MediaListViewModel : ObservableObject
     /// <summary>
     /// 選択状態が変更されたときのコマンド
     /// </summary>
-    /// <param name="itemInfo">選択されたアイテム</param>
+    /// <param name="items">選択されたアイテム</param>
     [RelayCommand]
-    private void SelectionChanged(ItemInfo? itemInfo)
+    private void SelectionChanged(System.Collections.IList items)
     {
-        _onSelected.Value = itemInfo;
+        _selectedItems.Clear();
 
-        // System.Diagnostics.Debug.WriteLine($"{itemInfo.OriginalMediaInfo.FileNameWithoutExtension}");
+        if (0 < items.Count)
+        {
+            UpdateSelectedItem(items[0] as ItemInfo);
+
+            foreach (var item in items)
+            {
+                if (item is ItemInfo itemInfo)
+                {
+                    _selectedItems.Add(itemInfo);
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -103,11 +118,11 @@ internal partial class MediaListViewModel : ObservableObject
         // 選択状態の変更
         if (0 < MediaItems.Count)
         {
-            SelectionChanged(MediaItems[afterIndex]);
+            UpdateSelectedItem(MediaItems[afterIndex]);
         }
         else
         {
-            SelectionChanged(null);
+            UpdateSelectedItem(null);
         }
     }
 
@@ -118,7 +133,7 @@ internal partial class MediaListViewModel : ObservableObject
     private void Clone(ItemInfo itemInfo)
     {
         var cloneItem = new ItemInfo(itemInfo, _userSetting);
-        InsertItem(cloneItem, MediaItems.IndexOf(itemInfo) + 1);
+        RegisterItemAt(cloneItem, MediaItems.IndexOf(itemInfo) + 1);
     }
 
     /// <summary>
@@ -132,6 +147,11 @@ internal partial class MediaListViewModel : ObservableObject
     private readonly ReactivePropertySlim<ItemInfo?> _onSelected = new(null);
 
     /// <summary>
+    /// DataGridで選択されたアイテムを保持するリスト
+    /// </summary>
+    private readonly List<ItemInfo> _selectedItems = [];
+
+    /// <summary>
     /// ユーザー設定
     /// </summary>
     private readonly UserSetting _userSetting;
@@ -140,6 +160,20 @@ internal partial class MediaListViewModel : ObservableObject
     {
         _userSetting = userSetting;
         MediaItems.CollectionChanged += OnCollectionChanged;
+    }
+
+    /// <summary>
+    /// 単一のファイルからアイテムを生成し、リストに追加する
+    /// </summary>
+    /// <param name="file">ファイルパス</param>
+    /// <returns>非同期タスク</returns>
+    public async Task AddItemAsync(string file)
+    {
+        var item = new ItemInfo(file, _userSetting);
+
+        await Task.Run(item.LoadInfo);
+
+        RegisterItem(item);
     }
 
     /// <summary>
@@ -157,8 +191,17 @@ internal partial class MediaListViewModel : ObservableObject
         // 生成したアイテムをリストに追加
         foreach (var item in workspace)
         {
-            AddItem(item);
+            RegisterItem(item);
         }
+    }
+
+    /// <summary>
+    /// DataGridで選択中のアイテムを更新する
+    /// </summary>
+    /// <param name="itemInfo">選択するアイテム、または選択解除の場合はnull</param>
+    private void UpdateSelectedItem(ItemInfo? itemInfo)
+    {
+        _onSelected.Value = itemInfo;
     }
 
     /// <summary>
@@ -188,11 +231,11 @@ internal partial class MediaListViewModel : ObservableObject
         // 選択状態の変更
         if (0 < MediaItems.Count)
         {
-            SelectionChanged(MediaItems[afterIndex]);
+            UpdateSelectedItem(MediaItems[afterIndex]);
         }
         else
         {
-            SelectionChanged(null);
+            UpdateSelectedItem(null);
         }
     }
 
@@ -221,10 +264,10 @@ internal partial class MediaListViewModel : ObservableObject
     }
 
     /// <summary>
-    ///  アイテムをリストに追加する
+    /// アイテムをリストに登録する
     /// </summary>
     /// <param name="itemInfo"></param>
-    private void AddItem(ItemInfo itemInfo)
+    private void RegisterItem(ItemInfo itemInfo)
     {
         itemInfo.PropertyChanged += OnPropertyChanged;
         MediaItems.Add(itemInfo);
@@ -233,7 +276,7 @@ internal partial class MediaListViewModel : ObservableObject
     /// <summary>
     /// アイテムをリストの指定位置に挿入する
     /// </summary>
-    private void InsertItem(ItemInfo itemInfo, int index)
+    private void RegisterItemAt(ItemInfo itemInfo, int index)
     {
         itemInfo.PropertyChanged += OnPropertyChanged;
         MediaItems.Insert(index, itemInfo);

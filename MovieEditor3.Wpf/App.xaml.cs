@@ -20,6 +20,9 @@ public partial class App : Application
     /// <summary> サムネイル画像を置いておくディレクトリ </summary>
     public static readonly string ThumbnailDirectory = Path.Combine(CacheDirectory, "thumbnails");
 
+    /// <summary> 動画結合処理の素材を置いておくディレクトリ </summary>
+    public static readonly string JoinsDirectory = Path.Combine(CacheDirectory, "joins");
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -32,6 +35,7 @@ public partial class App : Application
         else
         {
             DeleteCacheFiles(ThumbnailDirectory);
+            DeleteCacheFiles(JoinsDirectory);
         }
 
         // Cache//report.txtにデバッグ用テキストを出力

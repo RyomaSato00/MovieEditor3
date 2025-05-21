@@ -82,6 +82,51 @@ internal class FFmpegCommandConverter
     }
 
     /// <summary>
+    /// 動画結合のための前処理コマンド生成処理
+    /// </summary>
+    /// <param name="info">結合前処理に必要な情報を含むオブジェクト</param>
+    /// <returns>FFmpegで実行可能な前処理コマンド</returns>
+    public static string ToArrangeCommandForJoin(ICompInfo info)
+    {
+        var argList = new List<string>
+        {
+            // 入力ファイルパス
+            $"-y -i \"{info.FilePath}\"",
+
+            // 動画コーデック
+            "-c:v h264"
+        };
+
+        // トリミング開始位置
+        if (info.StartPoint is not null)
+        {
+            argList.Add($"-ss {info.StartPoint:hh\\:mm\\:ss\\.fff}");
+        }
+
+        // トリミング終了位置
+        if (info.EndPoint is not null)
+        {
+            argList.Add($"-to {info.EndPoint:hh\\:mm\\:ss\\.fff}");
+        }
+
+        // 動画結合処理の素材ファイルを置いておくディレクトリが存在？
+        if (false == Directory.Exists(App.JoinsDirectory))
+        {
+            Directory.CreateDirectory(App.JoinsDirectory);
+        }
+
+        // 出力先指定
+        var output = Path.Combine(App.JoinsDirectory, $"{info.OutputName}{MOVIE_FORMAT}");
+
+        // 重複しないファイルパスに書き換える
+        output = Utilities.RenameOnlyPath(output);
+
+        argList.Add($"\"{output}\"");
+
+        return string.Join(" ", argList);
+    }
+
+    /// <summary>
     /// 画像出力用コマンド生成処理
     /// </summary>
     /// <param name="itemInfo"></param>
@@ -318,5 +363,31 @@ internal class FFmpegCommandConverter
         clipHeight = info.CropRect.Height + y <= info.OriginalHeight ? info.CropRect.Height : info.OriginalHeight - y;
 
         return $"crop={clipWidth:F2}:{clipHeight:F2}:{x:F2}:{y:F2}";
+    }
+
+    /// <summary>
+    /// FFmpegコマンドから出力ファイルパスを抽出する
+    /// </summary>
+    /// <param name="command">FFmpegコマンド文字列</param>
+    /// <returns>出力ファイルパス、または抽出に失敗した場合は空文字列</returns>
+    public static string GetOutputFilePathFromCommand(string command)
+    {
+        var result = string.Empty;
+
+        try
+        {
+            var args = command.Split(" ");
+
+            if (0 < args.Length)
+            {
+                result = args[^1].Trim('"');
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+
+        return result;
     }
 }

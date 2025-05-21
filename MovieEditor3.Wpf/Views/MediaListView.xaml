@@ -31,7 +31,7 @@
       <xaml:Interaction.Triggers>
         <xaml:EventTrigger EventName="SelectionChanged">
           <xaml:InvokeCommandAction Command="{Binding SelectionChangedCommand}" 
-            CommandParameter="{Binding SelectedItem, ElementName=MovieList}"/>
+            CommandParameter="{Binding SelectedItems, ElementName=MovieList}"/>
         </xaml:EventTrigger>
       </xaml:Interaction.Triggers>
     

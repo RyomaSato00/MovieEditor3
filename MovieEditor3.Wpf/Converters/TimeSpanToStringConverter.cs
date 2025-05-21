@@ -56,9 +56,8 @@ internal class TimeSpanToStringConverter : IValueConverter
 
             return TimeSpan.FromSeconds(seconds);
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            System.Diagnostics.Debug.WriteLine($"{e}");
             return null;
         }
     }

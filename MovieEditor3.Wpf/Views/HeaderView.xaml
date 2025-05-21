@@ -9,7 +9,7 @@
     <Style x:Key="IconButtonStyle" TargetType="{x:Type Button}"
       BasedOn="{StaticResource MaterialDesignIconForegroundButton}">
       <Setter Property="VerticalAlignment" Value="Center" />
-      <Setter Property="Margin" Value="0,0,10,0" />
+      <Setter Property="Margin" Value="20,0,20,0" />
     </Style>
   </UserControl.Resources>
   <Grid>
@@ -21,6 +21,10 @@
       <Button DockPanel.Dock="Right" Style="{StaticResource IconButtonStyle}"
         Command="{Binding OpenExplorerCommand}" ToolTip="出力先フォルダを開く">
         <mate:PackIcon Kind="FolderArrowRight" Height="32" Width="32" />
+      </Button>
+      <Button DockPanel.Dock="Right" Style="{StaticResource IconButtonStyle}"
+        Command="{Binding JoinFilesCommand}" ToolTip="動画結合">
+        <mate:PackIcon Kind="TransitConnectionVariant" Height="32" Width="32" />
       </Button>
     </DockPanel>
   </Grid>

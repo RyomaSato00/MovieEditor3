@@ -13,7 +13,7 @@
     </Style>
     <Style x:Key="TimeTextBoxStyle" TargetType="TextBox"
       BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
-      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
       <Setter Property="FontFamily" Value="Consolas" />
       <Setter Property="Margin" Value="2,4,2,8" />
       <Setter Property="Width" Value="150" />
@@ -44,9 +44,15 @@
             </xaml:Interaction.Triggers>
           </Border>
         </Grid>
-        <TextBox Style="{StaticResource TimeTextBoxStyle}"
-          Text="{Binding Property.StartPoint, Converter={StaticResource TimeSpanToStringConverter}}"
-          mate:HintAssist.Hint="開始時刻" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+          <TextBox Style="{StaticResource TimeTextBoxStyle}"
+            Text="{Binding Property.StartPoint, Converter={StaticResource TimeSpanToStringConverter}}"
+            mate:HintAssist.Hint="開始時刻" />
+          <Button Command="{Binding ClearStartPointCommand}"
+            Style="{StaticResource MaterialDesignIconForegroundButton}" VerticalAlignment="Center">
+            <mate:PackIcon Kind="Close" Width="18" Height="18" />
+          </Button>
+        </StackPanel>
       </StackPanel>
 
       <mate:PackIcon Kind="ArrowDownBoldOutline" Width="24" Height="24" Margin="0,16,0,16"
@@ -64,9 +70,15 @@
             </xaml:Interaction.Triggers>
           </Border>
         </Grid>
-        <TextBox Style="{StaticResource TimeTextBoxStyle}"
-          Text="{Binding Property.EndPoint, Converter={StaticResource TimeSpanToStringConverter}}"
-          mate:HintAssist.Hint="終了時刻" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+          <TextBox Style="{StaticResource TimeTextBoxStyle}"
+            Text="{Binding Property.EndPoint, Converter={StaticResource TimeSpanToStringConverter}}"
+            mate:HintAssist.Hint="終了時刻" />
+          <Button Command="{Binding ClearEndPointCommand}"
+            Style="{StaticResource MaterialDesignIconForegroundButton}" VerticalAlignment="Center">
+            <mate:PackIcon Kind="Close" Width="18" Height="18" />
+          </Button>
+        </StackPanel>
       </StackPanel>
 
       <TextBlock FontFamily="Consolas" HorizontalAlignment="Center" Margin="0,16,0,0">

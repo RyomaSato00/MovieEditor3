@@ -47,15 +47,10 @@ internal partial class MediaPlayerViewModel : ObservableObject
     /// </summary>
     [ObservableProperty] private TimeSpan _duration = TimeSpan.Zero;
 
-    /// <summary>
-    /// 編集の開始ポイント
+/// <summary>
+    /// メディアプレーヤーのプロパティ
     /// </summary>
-    [ObservableProperty] private TimeSpan? _startPoint = TimeSpan.Zero;
-
-    /// <summary>
-    /// 編集の終了ポイント
-    /// </summary>
-    [ObservableProperty] private TimeSpan? _endPoint = TimeSpan.Zero;
+    [ObservableProperty] private IMediaPlayerProperty? _property = null;
 
     /// <summary>
     /// クロップ領域が表示されているかどうかを示す値
@@ -169,10 +164,11 @@ internal partial class MediaPlayerViewModel : ObservableObject
     /// メディアを読み込みます
     /// </summary>
     /// <param name="itemInfo">読み込むメディアのアイテム情報</param>
-    public void LoadMedia(ItemInfo itemInfo)
+    public void LoadMedia(IMediaPlayerProperty itemInfo)
     {
-        StartPoint = itemInfo.StartPoint;
-        EndPoint = itemInfo.EndPoint;
+        // StartPoint = itemInfo.StartPoint;
+        // EndPoint = itemInfo.EndPoint;
+        Property = itemInfo;
         IsPlaying = false;
         IsStoryCompleted = false;
         CurrentTime = TimeSpan.Zero;
@@ -180,22 +176,6 @@ internal partial class MediaPlayerViewModel : ObservableObject
 
         LoadMediaReq = new LoadMediaRequest { FilePath = itemInfo.FilePath };
         CropAreaContext.LoadCropAreaInfo(itemInfo);
-    }
-
-    /// <summary>
-    /// 編集の開始ポイントを動画の現在位置に設定します
-    /// </summary>
-    public void SetStartPoint()
-    {
-        StartPoint = CurrentTime;
-    }
-
-    /// <summary>
-    /// 編集の終了ポイントを動画の現在位置に設定します
-    /// </summary>
-    public void SetEndPoint()
-    {
-        EndPoint = CurrentTime;
     }
 
     /// <summary>

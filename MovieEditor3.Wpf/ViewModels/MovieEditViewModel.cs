@@ -46,6 +46,30 @@ internal partial class MovieEditViewModel : ObservableObject
     }
 
     /// <summary>
+    /// 開始ポイントをクリアします
+    /// </summary>
+    [RelayCommand]
+    private void ClearStartPoint()
+    {
+        if (Property is not null)
+        {
+            Property.StartPoint = null;
+        }
+    }
+
+    /// <summary>
+    /// 終了ポイントをクリアします
+    /// </summary>
+    [RelayCommand]
+    private void ClearEndPoint()
+    {
+        if (Property is not null)
+        {
+            Property.EndPoint = null;
+        }
+    }
+
+    /// <summary>
     /// 開始ポイント変更要求を通知するSubject
     /// </summary>
     private readonly Subject<Unit> _startPointChangeRequested = new();

@@ -23,9 +23,23 @@ internal partial class HeaderViewModel(UserSetting userSetting) : ObservableObje
     public string OutputDirectory { get; set; } = userSetting.OutputDirectory;
 
     /// <summary>
+    /// ファイル結合リクエストを通知するObservable
+    /// </summary>
+    public IObservable<Unit> JoinFilesRequested => _joinFilesRequested;
+
+    /// <summary>
     /// 設定画面を開くリクエストを通知するObservable
     /// </summary>
     public IObservable<Unit> OpenSettingRequested => _openSettingRequested;
+
+    /// <summary>
+    /// ファイル結合処理を実行するリクエストを発行します
+    /// </summary>
+    [RelayCommand]
+    private void JoinFiles()
+    {
+        _joinFilesRequested.OnNext(Unit.Default);
+    }
 
     /// <summary>
     /// エクスプローラーで出力先ディレクトリを開きます
@@ -59,6 +73,11 @@ internal partial class HeaderViewModel(UserSetting userSetting) : ObservableObje
     {
         _openSettingRequested.OnNext(Unit.Default);
     }
+
+    /// <summary>
+    /// ファイル結合リクエストを通知するSubject
+    /// </summary>
+    private readonly Subject<Unit> _joinFilesRequested = new();
 
     /// <summary>
     /// 設定画面を開くリクエストを通知するSubject

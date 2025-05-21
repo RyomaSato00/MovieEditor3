@@ -11,7 +11,7 @@ namespace MovieEditor3.Wpf.ViewModels;
 /// <summary>
 /// メディアアイテムの情報を管理するクラス
 /// </summary>
-internal partial class ItemInfo : ObservableObject, IMovieEditViewProperty, ICropProperty, ICompInfo, IGenerateImagesInfo
+internal partial class ItemInfo : ObservableObject, IMovieEditViewProperty, IMediaPlayerProperty, ICompInfo, IGenerateImagesInfo
 {
     private const int DEFAULT_PARAM_VALUE = -1;
 

@@ -53,14 +53,33 @@ public class PointsToDurationConverter : IMultiValueConverter
 
         if (REQUIRED_LENGTH <= values.Length)
         {
-            if (values[START_POINT_INDEX] is TimeSpan startPoint
-            && values[END_POINT_INDEX] is TimeSpan endPoint)
+            var startPoint = values[START_POINT_INDEX] as TimeSpan?;
+            var endPoint = values[END_POINT_INDEX] as TimeSpan?;
+            var defaultDuration = values[DEFAULT_DURATION] as TimeSpan?;
+
+            // 開始・終了ともに指定あり？
+            if (startPoint is TimeSpan && endPoint is TimeSpan)
             {
-                duration = endPoint - startPoint;
+                // 再生時間は終了ポイントから開始ポイントを引いたもの
+                duration = endPoint.Value - startPoint.Value;
             }
-            else if (values[DEFAULT_DURATION] is TimeSpan defaultDuration)
+            // 開始ポイントのみ指定あり？
+            else if (startPoint is TimeSpan && defaultDuration is TimeSpan)
             {
-                duration = defaultDuration;
+                // 再生時間はデフォルトの再生時間から開始ポイントを引いたもの
+                duration = defaultDuration.Value - startPoint.Value;
+            }
+            // 終了ポイントのみ指定あり？
+            else if (endPoint is TimeSpan && defaultDuration is TimeSpan)
+            {
+                // 再生時間は0から終了ポイントまでの時間
+                duration = endPoint.Value;
+            }
+            // 開始・終了ともに指定なし？
+            else if (defaultDuration is TimeSpan)
+            {
+                // 再生時間はデフォルトの再生時間
+                duration = defaultDuration.Value;
             }
         }
 

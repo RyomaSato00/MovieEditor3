@@ -113,8 +113,8 @@
       Maximum="{Binding Duration.TotalMilliseconds, Mode=OneWay}"
       ValueChanged="PositionSlider_ValueChanged"
       IsSelectionRangeEnabled="True"
-      SelectionStart="{Binding StartPoint.TotalMilliseconds, Mode=OneWay}"
-      SelectionEnd="{Binding EndPoint.TotalMilliseconds, Mode=OneWay}" />
+      SelectionStart="{Binding Property.StartPoint.TotalMilliseconds, Mode=OneWay}"
+      SelectionEnd="{Binding Property.EndPoint.TotalMilliseconds, Mode=OneWay}" />
 
     <Grid Grid.Row="2">
       <Grid.ColumnDefinitions>
