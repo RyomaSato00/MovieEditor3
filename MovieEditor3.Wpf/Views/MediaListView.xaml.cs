@@ -9,6 +9,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using MaterialDesignThemes.Wpf;
+
 namespace MovieEditor3.Wpf.Views;
 
 /// <summary>
@@ -19,6 +21,12 @@ public partial class MediaListView : UserControl
     public MediaListView()
     {
         InitializeComponent();
+    }
+
+    public void ShowWaitingDialog()
+    {
+        var dialog = FindResource("WaitingDialog");
+        DialogHost.Show(dialog, nameof(MediaListView));
     }
 }
 

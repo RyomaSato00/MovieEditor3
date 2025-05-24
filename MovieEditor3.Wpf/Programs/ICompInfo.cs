@@ -7,8 +7,14 @@ namespace MovieEditor3.Wpf.Programs;
 /// </summary>
 internal interface ICompInfo
 {
+    /// <summary>
+    /// 元動画の幅を取得します
+    /// </summary>
     public int OriginalWidth { get; }
 
+    /// <summary>
+    /// 元動画の高さを取得します
+    /// </summary>
     public int OriginalHeight { get; }
 
     /// <summary>
@@ -67,14 +73,9 @@ internal interface ICompInfo
     public TimeSpan? EndPoint { get; }
 
     /// <summary>
-    /// 出力先ディレクトリを取得します
-    /// </summary>
-    public string OutputDirectory { get; }
-
-    /// <summary>
     /// 出力ファイル名を取得します
     /// </summary>
-    public string OutputName { get; }
+    public string GuidName { get; }
 }
 
 /// <summary>

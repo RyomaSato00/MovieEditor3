@@ -25,7 +25,7 @@ internal partial class CommandCheckDialogViewModel : ObservableObject
     [RelayCommand]
     private void Checked(bool isChecked)
     {
-        DialogHost.Close(null);
+        DialogHost.Close(nameof(MainWindow));
         _commandChecked?.SetResult(isChecked);
     }
 

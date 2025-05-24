@@ -12,11 +12,11 @@ using System.Windows.Shapes;
 namespace MovieEditor3.Wpf.Views;
 
 /// <summary>
-/// Interaction logic for ExecutionView.xaml
+/// Interaction logic for FooterView.xaml
 /// </summary>
-public partial class ExecutionView : UserControl
+public partial class FooterView : UserControl
 {
-    public ExecutionView()
+    public FooterView()
     {
         InitializeComponent();
     }

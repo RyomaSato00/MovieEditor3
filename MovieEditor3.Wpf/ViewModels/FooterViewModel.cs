@@ -11,7 +11,7 @@ namespace MovieEditor3.Wpf.ViewModels;
 /// <summary>
 /// 実行操作に関するビューモデルクラス
 /// </summary>
-internal partial class ExecutionViewModel : ObservableObject
+internal partial class FooterViewModel : ObservableObject
 {
     /// <summary>
     /// 実行操作が有効かどうかを示すリアクティブプロパティ
@@ -28,7 +28,7 @@ internal partial class ExecutionViewModel : ObservableObject
     /// </summary>
     public ReactiveCommand GenerateImagesCommand { get; }
 
-    public ExecutionViewModel()
+    public FooterViewModel()
     {
         // IsExecutionEnabledがtrueのときのみ実行可能なコマンド
         CompCommand = IsExecutionEnabled.ToReactiveCommand();

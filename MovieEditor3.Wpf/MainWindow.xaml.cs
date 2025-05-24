@@ -57,7 +57,7 @@ public partial class MainWindow : Window
     public void ShowCommandCheckDialog()
     {
         var dialog = FindResource("CommandCheckDialog");
-        DialogHost.Show(dialog);
+        DialogHost.Show(dialog, nameof(MainWindow));
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public partial class MainWindow : Window
     public void ShowProgressDialog()
     {
         var dialog = FindResource("ProgressDialog");
-        DialogHost.Show(dialog);
+        DialogHost.Show(dialog, nameof(MainWindow));
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ public partial class MainWindow : Window
     public void ShowDeleteDialog()
     {
         var dialog = FindResource("DeleteDialog");
-        DialogHost.Show(dialog);
+        DialogHost.Show(dialog, nameof(MainWindow));
     }
 
     /// <summary>
@@ -84,6 +84,6 @@ public partial class MainWindow : Window
     public void ShowSettingDialog()
     {
         var dialog = FindResource("SettingDialog");
-        DialogHost.Show(dialog);
+        DialogHost.Show(dialog, nameof(MainWindow));
     }
 }

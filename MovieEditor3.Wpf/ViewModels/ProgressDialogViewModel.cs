@@ -68,7 +68,7 @@ internal partial class ProgressDialogViewModel : ObservableObject
     public void Close()
     {
         _uiUpdateTimer.Stop();
-        DialogHost.Close(null);
+        DialogHost.Close(nameof(MainWindow));
         _processItems = null;
     }
 

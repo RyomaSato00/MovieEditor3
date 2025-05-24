@@ -20,79 +20,127 @@
       <Setter Property="Width" Value="80" />
       <Setter Property="Height" Value="40" />
     </Style>
+    <Style x:Key="TextBoxStyle" TargetType="{x:Type TextBox}"
+      BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="Padding" Value="2,0,2,0" />
+      <Setter Property="FontFamily" Value="Consolas" />
+      <Setter Property="Width" Value="80" />
+      <Setter Property="Height" Value="40" />
+    </Style>
   </UserControl.Resources>
 
   <Grid>
-    <StackPanel Margin="4">
-      <DockPanel LastChildFill="False" Margin="0,0,0,24">
-        <TextBlock DockPanel.Dock="Left" Text="Width" Style="{StaticResource TextLabelStyle}" />
-        <ComboBox DockPanel.Dock="Right" Text="{Binding ResizedWidth}" Style="{StaticResource ComboBoxStyle}">
-          <ComboBoxItem Content="-1" />
-          <ComboBoxItem Content="1920" />
-          <ComboBoxItem Content="1600" />
-          <ComboBoxItem Content="1280" />
-          <ComboBoxItem Content="1024" />
-          <ComboBoxItem Content="896" />
-          <ComboBoxItem Content="768" />
-          <ComboBoxItem Content="640" />
-          <ComboBoxItem Content="576" />
-          <ComboBoxItem Content="512" />
-          <ComboBoxItem Content="480" />
-        </ComboBox>
-      </DockPanel>
-      <DockPanel LastChildFill="False" Margin="0,0,0,24">
-        <TextBlock DockPanel.Dock="Left" Text="Height" Style="{StaticResource TextLabelStyle}" />
-        <ComboBox DockPanel.Dock="Right" Text="{Binding ResizedHeight}" Style="{StaticResource ComboBoxStyle}">
-          <ComboBoxItem Content="-1" />
-          <ComboBoxItem Content="1080" />
-          <ComboBoxItem Content="900" />
-          <ComboBoxItem Content="720" />
-          <ComboBoxItem Content="576" />
-          <ComboBoxItem Content="504" />
-          <ComboBoxItem Content="432" />
-          <ComboBoxItem Content="360" />
-          <ComboBoxItem Content="324" />
-          <ComboBoxItem Content="288" />
-          <ComboBoxItem Content="270" />
-        </ComboBox>
-      </DockPanel>
-      <DockPanel LastChildFill="False" Margin="0,0,0,24">
-        <TextBlock DockPanel.Dock="Left" Text="Frame Rate" Style="{StaticResource TextLabelStyle}" />
-        <ComboBox DockPanel.Dock="Right" Text="{Binding FrameRate}" Style="{StaticResource ComboBoxStyle}">
-          <ComboBoxItem Content="-1" />
-          <ComboBoxItem Content="30.0" />
-          <ComboBoxItem Content="60.0" />
-        </ComboBox>
-      </DockPanel>
-      <DockPanel LastChildFill="False" Margin="0,0,0,24">
-        <TextBlock DockPanel.Dock="Left" Text="Codec" Style="{StaticResource TextLabelStyle}" />
-        <ComboBox DockPanel.Dock="Right" Text="{Binding Codec}" Style="{StaticResource ComboBoxStyle}">
-          <ComboBoxItem Content="h264" />
-          <ComboBoxItem Content="hevc" />
-        </ComboBox>
-      </DockPanel>
-      <DockPanel LastChildFill="False" Margin="0,0,0,24">
-        <TextBlock DockPanel.Dock="Left" Text="Audio Disabled"
-          Style="{StaticResource TextLabelStyle}" />
-        <ToggleButton DockPanel.Dock="Right" IsChecked="{Binding IsAudioDisabled}"
-          VerticalAlignment="Center" />
-      </DockPanel>
-      <DockPanel LastChildFill="False" Margin="0,0,0,24">
-        <TextBlock DockPanel.Dock="Left" Text="Speed" Style="{StaticResource TextLabelStyle}" />
-        <ComboBox DockPanel.Dock="Right" Text="{Binding PlaybackSpeed}" Style="{StaticResource ComboBoxStyle}">
-          <ComboBoxItem Content="-1" />
-          <ComboBoxItem Content="0.5" />
-          <ComboBoxItem Content="0.6" />
-          <ComboBoxItem Content="0.7" />
-          <ComboBoxItem Content="0.8" />
-          <ComboBoxItem Content="0.9" />
-          <ComboBoxItem Content="1.1" />
-          <ComboBoxItem Content="1.2" />
-          <ComboBoxItem Content="1.3" />
-          <ComboBoxItem Content="1.4" />
-          <ComboBoxItem Content="1.5" />
-        </ComboBox>
-      </DockPanel>
-    </StackPanel>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Margin="4">
+        <DockPanel LastChildFill="True" Margin="0,0,0,12">
+          <TextBlock DockPanel.Dock="Left" Text="動画圧縮" FontSize="20"
+            Style="{StaticResource TextLabelStyle}" />
+          <Separator Margin="2,0,0,0" VerticalAlignment="Center" Height="2" />
+        </DockPanel>
+        <DockPanel LastChildFill="False" Margin="0,0,0,24">
+          <TextBlock DockPanel.Dock="Left" Text="Width" Style="{StaticResource TextLabelStyle}" />
+          <ComboBox DockPanel.Dock="Right" Text="{Binding ResizedWidth}"
+            Style="{StaticResource ComboBoxStyle}">
+            <ComboBoxItem Content="-1" />
+            <ComboBoxItem Content="1920" />
+            <ComboBoxItem Content="1600" />
+            <ComboBoxItem Content="1280" />
+            <ComboBoxItem Content="1024" />
+            <ComboBoxItem Content="896" />
+            <ComboBoxItem Content="768" />
+            <ComboBoxItem Content="640" />
+            <ComboBoxItem Content="576" />
+            <ComboBoxItem Content="512" />
+            <ComboBoxItem Content="480" />
+          </ComboBox>
+        </DockPanel>
+        <DockPanel LastChildFill="False" Margin="0,0,0,24">
+          <TextBlock DockPanel.Dock="Left" Text="Height" Style="{StaticResource TextLabelStyle}" />
+          <ComboBox DockPanel.Dock="Right" Text="{Binding ResizedHeight}"
+            Style="{StaticResource ComboBoxStyle}">
+            <ComboBoxItem Content="-1" />
+            <ComboBoxItem Content="1080" />
+            <ComboBoxItem Content="900" />
+            <ComboBoxItem Content="720" />
+            <ComboBoxItem Content="576" />
+            <ComboBoxItem Content="504" />
+            <ComboBoxItem Content="432" />
+            <ComboBoxItem Content="360" />
+            <ComboBoxItem Content="324" />
+            <ComboBoxItem Content="288" />
+            <ComboBoxItem Content="270" />
+          </ComboBox>
+        </DockPanel>
+        <DockPanel LastChildFill="False" Margin="0,0,0,24">
+          <TextBlock DockPanel.Dock="Left" Text="Frame Rate" Style="{StaticResource TextLabelStyle}" />
+          <ComboBox DockPanel.Dock="Right" Text="{Binding FrameRate}"
+            Style="{StaticResource ComboBoxStyle}">
+            <ComboBoxItem Content="-1" />
+            <ComboBoxItem Content="30.0" />
+            <ComboBoxItem Content="60.0" />
+          </ComboBox>
+        </DockPanel>
+        <DockPanel LastChildFill="False" Margin="0,0,0,24">
+          <TextBlock DockPanel.Dock="Left" Text="Codec" Style="{StaticResource TextLabelStyle}" />
+          <ComboBox DockPanel.Dock="Right" Text="{Binding Codec}"
+            Style="{StaticResource ComboBoxStyle}">
+            <ComboBoxItem Content="h264" />
+            <ComboBoxItem Content="hevc" />
+          </ComboBox>
+        </DockPanel>
+        <DockPanel LastChildFill="False" Margin="0,0,0,24">
+          <TextBlock DockPanel.Dock="Left" Text="Audio Disabled"
+            Style="{StaticResource TextLabelStyle}" />
+          <ToggleButton DockPanel.Dock="Right" IsChecked="{Binding IsAudioDisabled}"
+            VerticalAlignment="Center" />
+        </DockPanel>
+        <DockPanel LastChildFill="False" Margin="0,0,0,24">
+          <TextBlock DockPanel.Dock="Left" Text="Speed" Style="{StaticResource TextLabelStyle}" />
+          <ComboBox DockPanel.Dock="Right" Text="{Binding PlaybackSpeed}"
+            Style="{StaticResource ComboBoxStyle}">
+            <ComboBoxItem Content="-1" />
+            <ComboBoxItem Content="0.5" />
+            <ComboBoxItem Content="0.6" />
+            <ComboBoxItem Content="0.7" />
+            <ComboBoxItem Content="0.8" />
+            <ComboBoxItem Content="0.9" />
+            <ComboBoxItem Content="1.1" />
+            <ComboBoxItem Content="1.2" />
+            <ComboBoxItem Content="1.3" />
+            <ComboBoxItem Content="1.4" />
+            <ComboBoxItem Content="1.5" />
+          </ComboBox>
+        </DockPanel>
+        <DockPanel LastChildFill="True" Margin="0,12,0,12">
+          <TextBlock DockPanel.Dock="Left" Text="画像生成" FontSize="20"
+            Style="{StaticResource TextLabelStyle}" />
+          <Separator Margin="2,0,0,0" VerticalAlignment="Center" Height="2" />
+        </DockPanel>
+        <DockPanel LastChildFill="False" Margin="0,0,0,24">
+          <TextBlock DockPanel.Dock="Left" Text="Frames / sec."
+            Style="{StaticResource TextLabelStyle}" />
+          <TextBox DockPanel.Dock="Right" Text="{Binding FramesPerSecond}"
+            Style="{StaticResource TextBoxStyle}" />
+        </DockPanel>
+        <DockPanel LastChildFill="False" Margin="0,0,0,24">
+          <TextBlock DockPanel.Dock="Left" Text="Total Frames"
+            Style="{StaticResource TextLabelStyle}" />
+          <TextBox DockPanel.Dock="Right" Text="{Binding TotalFrames}"
+            Style="{StaticResource TextBoxStyle}" />
+        </DockPanel>
+        <DockPanel LastChildFill="False" Margin="0, 0,0,24">
+          <TextBlock DockPanel.Dock="Left" Text="Quality" Style="{StaticResource TextLabelStyle}" />
+          <ComboBox DockPanel.Dock="Right" Text="{Binding Quality}"
+            Style="{StaticResource ComboBoxStyle}">
+            <ComboBoxItem Content="-1" />
+            <ComboBoxItem Content="0" />
+            <ComboBoxItem Content="1" />
+            <ComboBoxItem Content="2" />
+          </ComboBox>
+        </DockPanel>
+      </StackPanel>
+    </ScrollViewer>
   </Grid>
 </UserControl>

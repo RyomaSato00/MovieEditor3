@@ -22,11 +22,6 @@ namespace MovieEditor3.Wpf.ViewModels;
 internal partial class MainWindowViewModel : ObservableObject
 {
     /// <summary>
-    /// エンプティステート用ViewModel
-    /// </summary>
-    public EmptyStateViewModel EmptyStateViewContext { get; } = new();
-
-    /// <summary>
     /// メディアリスト用ViewModel
     /// </summary>
     public MediaListViewModel MediaListViewContext { get; }
@@ -43,9 +38,9 @@ internal partial class MainWindowViewModel : ObservableObject
     public HeaderViewModel HeaderViewContext { get; }
 
     /// <summary>
-    /// 実行操作用ViewModel
+    /// フッタービュー用ViewModel
     /// </summary>
-    public ExecutionViewModel ExecutionViewContext { get; } = new();
+    public FooterViewModel FooterViewContext { get; } = new();
 
     /// <summary>
     /// 設定ダイアログ用ViewModel
@@ -67,11 +62,6 @@ internal partial class MainWindowViewModel : ObservableObject
     /// </summary>
     public YesNoDialogViewModel DeleteDialogContext { get; } = new YesNoDialogViewModel { Message = "処理済みファイルをリストから削除しますか？" };
 
-    /// <summary>
-    /// コンテンツ表示状態
-    /// </summary>
-    [ObservableProperty] private bool _isContentVisible = false;
-
     [ObservableProperty] private ShowDialogRequest? _showCommandCheckDialogReq = null;
     [ObservableProperty] private ShowDialogRequest? _showProgressDialogReq = null;
     [ObservableProperty] private ShowDialogRequest? _showDeleteDialogReq = null;
@@ -84,14 +74,13 @@ internal partial class MainWindowViewModel : ObservableObject
         SettingDialogContext = new SettingDialogViewModel(userSetting);
 
         // 各種イベント設定
-        EmptyStateViewContext.OnNewFilesAdded.Subscribe(files => _ = MediaListViewContext.AddItemsAsync(files));
-        MediaListViewContext.IsEmpty.Subscribe(isEmpty => EmptyStateViewContext.IsVisible = isEmpty);
-        MediaListViewContext.IsEmpty.Subscribe(isEmpty => IsContentVisible = false == isEmpty);
+        MediaListViewContext.IsEmpty.Where(isEmpty => false == isEmpty).Subscribe(isEmpty => EditViewContext.SelectItem(MediaListViewContext.MediaItems[0]));
         MediaListViewContext.OnSelected.Subscribe(EditViewContext.SelectItem);
-        MediaListViewContext.IsAllSelected.Subscribe(isSelected => ExecutionViewContext.IsExecutionEnabled.Value = isSelected ?? true);
-        HeaderViewContext.JoinFilesRequested.Subscribe(_ => JoinFiles());
+        MediaListViewContext.IsAllSelected.Subscribe(isSelected => FooterViewContext.IsExecutionEnabled.Value = isSelected ?? true);
+        HeaderViewContext.JoinFilesRequested.Subscribe(unit => _ = JoinFilesAsync());
         HeaderViewContext.OpenSettingRequested.Subscribe(_ => ShowSettingDialogReq = new ShowDialogRequest());
-        ExecutionViewContext.CompCommand.Subscribe(unit => _ = Comp());
+        FooterViewContext.CompCommand.Subscribe(unit => _ = CompAsync());
+        FooterViewContext.GenerateImagesCommand.Subscribe(unit => _ = GenerateImagesAsync());
     }
 
     /// <summary>
@@ -118,13 +107,13 @@ internal partial class MainWindowViewModel : ObservableObject
     /// 圧縮処理では各動画ファイルに対して、設定された圧縮パラメータが適用されます。
     /// ユーザーは処理の各段階で操作をキャンセルすることができます。
     /// </remarks>
-    private async Task Comp()
+    private async Task CompAsync()
     {
         var commandCheckInfos = MediaListViewContext.MediaItems
         .Where(static item => item.IsSelected)
-        .Select(static item => new CommandCheckInfo
+        .Select(item => new CommandCheckInfo
         (
-            FFmpegCommandConverter.ToCompressCommand(item),
+            FFmpegCommandConverter.ToCompressCommand(item, SettingDialogContext.UserSettingBackup.OutputDirectory),
             item.ThumbnailPath
         ))
         .ToArray();
@@ -175,7 +164,7 @@ internal partial class MainWindowViewModel : ObservableObject
     /// 前処理では各動画ファイルのトリミングや編集が適用され、結合に適した形式に変換されます。
     /// 結合後のファイルは一意のGUIDを含むファイル名で保存されます。
     /// </remarks>
-    private async void JoinFiles()
+    private async Task JoinFilesAsync()
     {
         var processItems = MediaListViewContext.SelectedItems
         .Select(static item => new CommandProcessInfo(FFmpegCommandConverter.ToArrangeCommandForJoin(item)))
@@ -197,13 +186,74 @@ internal partial class MainWindowViewModel : ObservableObject
         .ToArray();
 
         // 動画結合出力ファイルパスを作成
-        var joinedFilePath = Path.Combine(App.JoinsDirectory, $"joined_{Guid.NewGuid()}.mp4");
+        var joinedFilePath = FFmpegCommandConverter.NewJoinedFilePath();
 
         // 動画結合処理を実行
         FFMpeg.Join(joinedFilePath, outputFiles);
 
         // 結合後の動画をリストに追加
         _ = MediaListViewContext.AddItemAsync(joinedFilePath);
+    }
+
+    /// <summary>
+    /// 選択された動画ファイルから画像を生成する処理を実行します。
+    /// </summary>
+    /// <returns>処理の実行タスク</returns>
+    /// <remarks>
+    /// 処理の流れ:
+    /// 1. 選択された各メディアアイテムに対して画像生成用のFFmpegコマンドを生成
+    /// 2. コマンド確認ダイアログを表示し、ユーザーに実行前の確認を求める
+    /// 3. 確認後、進捗ダイアログを表示し、画像生成コマンドを並列実行
+    /// 4. 処理完了後、処理済みファイルをリストから削除するかユーザーに確認
+    /// 5. ユーザーの選択に応じて、処理済みファイルをリストから削除
+    ///
+    /// 画像生成処理では各動画ファイルに対して、設定されたフレーム数、品質、
+    /// 抽出範囲などのパラメータが適用されます。
+    /// 生成された画像は指定された出力ディレクトリに保存されます。
+    /// ユーザーは処理の各段階で操作をキャンセルすることができます。
+    /// </remarks>
+    private async Task GenerateImagesAsync()
+    {
+        var commandCheckInfos = MediaListViewContext.MediaItems
+        .Where(static item => item.IsSelected)
+        .Select(item => new CommandCheckInfo
+        (
+            FFmpegCommandConverter.ToImagesCommand(item, SettingDialogContext.UserSettingBackup.OutputDirectory),
+            item.ThumbnailPath
+        ))
+        .ToArray();
+
+        CommandCheckDialogContext.CommandProperties = commandCheckInfos;
+
+        // コマンドチェックダイアログを表示
+        ShowCommandCheckDialogReq = new ShowDialogRequest();
+
+        var isChecked = await CommandCheckDialogContext.WaitForCommandChecked();
+
+        if (isChecked == false) return;
+
+        var processItems = commandCheckInfos
+        .Select(static info => new CommandProcessInfo(info.Command))
+        .ToArray();
+
+        ProgressDialogContext.SetProgress(processItems);
+
+        // 処理進捗ダイアログを表示
+        ShowProgressDialogReq = new ShowDialogRequest();
+
+        await Task.Run(() => ParallelCommandProcessor.Run(processItems));
+
+        ProgressDialogContext.Close();
+
+        // 削除ダイアログを表示
+        ShowDeleteDialogReq = new ShowDialogRequest();
+
+        var isDeleteRequested = await DeleteDialogContext.WaitForAnswer();
+
+        if (isDeleteRequested)
+        {
+            MediaListViewContext.DeleteSelectedItems();
+        }
     }
 
 }

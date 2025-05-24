@@ -9,6 +9,8 @@ internal class FFmpegCommandConverter
 
     private const string IMAGE_FORMAT = ".png";
 
+    private const string JOIN_HEADER_NAME = "joined";
+
     private static readonly Dictionary<RotateID, string> RotateCommands = new()
     {
         { RotateID.Rotate90, "transpose=1" },
@@ -24,7 +26,7 @@ internal class FFmpegCommandConverter
     /// <param name="outputDirectory"></param>
     /// <param name="isOnly">出力ファイルの重複を回避する？</param>
     /// <returns></returns>
-    public static string ToCompressCommand(ICompInfo info)
+    public static string ToCompressCommand(ICompInfo info, string outputDirectory)
     {
         var argList = new List<string>
         {
@@ -71,7 +73,7 @@ internal class FFmpegCommandConverter
         }
 
         // 出力先指定
-        var output = Path.Combine(info.OutputDirectory, $"{info.OutputName}{MOVIE_FORMAT}");
+        var output = Path.Combine(outputDirectory, $"{info.GuidName}{MOVIE_FORMAT}");
 
         // 重複しないファイルパスに書き換える
         output = Utilities.RenameOnlyPath(output);
@@ -116,7 +118,7 @@ internal class FFmpegCommandConverter
         }
 
         // 出力先指定
-        var output = Path.Combine(App.JoinsDirectory, $"{info.OutputName}{MOVIE_FORMAT}");
+        var output = Path.Combine(App.JoinsDirectory, $"{info.GuidName}{MOVIE_FORMAT}");
 
         // 重複しないファイルパスに書き換える
         output = Utilities.RenameOnlyPath(output);
@@ -127,13 +129,22 @@ internal class FFmpegCommandConverter
     }
 
     /// <summary>
+    /// 動画結合出力ファイルパスを新規生成する
+    /// </summary>
+    /// <returns>動画結合出力ファイルパス</returns>
+    public static string NewJoinedFilePath()
+    {
+        return Path.Combine(App.JoinsDirectory, $"{JOIN_HEADER_NAME}_{Guid.NewGuid()}{MOVIE_FORMAT}");
+    }
+
+    /// <summary>
     /// 画像出力用コマンド生成処理
     /// </summary>
     /// <param name="itemInfo"></param>
     /// <param name="setting"></param>
     /// <param name="outputDirectory"></param>
     /// <returns></returns>
-    public static string ToImagesCommand(IGenerateImagesInfo info)
+    public static string ToImagesCommand(IGenerateImagesInfo info, string outputDirectory)
     {
         var argList = new List<string>
         {
@@ -148,9 +159,9 @@ internal class FFmpegCommandConverter
         }
 
         // 総フレーム数
-        if (info.CountOfFrames >= 1)
+        if (info.TotalFrames >= 1)
         {
-            argList.Add($"-vframes {info.CountOfFrames}");
+            argList.Add($"-vframes {info.TotalFrames}");
         }
 
         // 画像品質（数が大きいほど品質が低下し、容量が少なくなる）
@@ -171,14 +182,17 @@ internal class FFmpegCommandConverter
             argList.Add($"-to {info.EndPoint:hh\\:mm\\:ss\\.fff}");
         }
 
-        // 画像出力フォルダの作成
-        Directory.CreateDirectory(Path.Combine(info.OutputDirectory, info.OutputName));
-
-        // 出力先指定
-        var output = Path.Combine(info.OutputDirectory, info.OutputName, $"{info.OutputName}_%06d.{IMAGE_FORMAT}");
+        // 出力先フォルダ
+        var outputDir = Path.Combine(outputDirectory, info.FileName);
 
         // 重複しないファイルパスに書き換える
-        output = Utilities.RenameOnlyPath(output);
+        outputDir = Utilities.RenameOnlyPath(outputDir);
+
+        // 画像出力フォルダの作成
+        Directory.CreateDirectory(outputDir);
+
+        // 出力先指定
+        var output = Path.Combine(outputDir, $"{info.FileName}_%06d.{IMAGE_FORMAT}");
 
         argList.Add($"\"{output}\"");
 

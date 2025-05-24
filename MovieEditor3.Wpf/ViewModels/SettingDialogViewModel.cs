@@ -35,7 +35,8 @@ internal partial class SettingDialogViewModel : ObservableObject
     [RelayCommand]
     private void Cancel()
     {
-        DialogHost.Close(null);
+        DialogHost.Close(nameof(MainWindow));
+        ReadSetting();
     }
 
     /// <summary>
@@ -44,8 +45,8 @@ internal partial class SettingDialogViewModel : ObservableObject
     [RelayCommand]
     private void Decide()
     {
+        DialogHost.Close(nameof(MainWindow));
         WriteSetting();
-        DialogHost.Close(null);
     }
 
     /// <summary>

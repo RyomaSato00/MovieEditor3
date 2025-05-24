@@ -11,20 +11,8 @@
     <BooleanToVisibilityConverter x:Key="Bool2VisibilityConverter" />
   </UserControl.Resources>
   
-  <Grid Visibility="{Binding IsVisible, Converter={StaticResource Bool2VisibilityConverter}}">
-    <!-- 色を塗らないとドロップできない -->
-    <Border Background="Transparent">
-      <xaml:Interaction.Behaviors>
-        <behavior:FileDropBehavior />
-      </xaml:Interaction.Behaviors>
-
-      <!-- ドロップイベントをバインド -->
-      <xaml:Interaction.Triggers>
-        <xaml:EventTrigger EventName="Drop">
-          <xaml:InvokeCommandAction Command="{Binding DropCommand}" PassEventArgsToCommand="True" />
-        </xaml:EventTrigger>
-      </xaml:Interaction.Triggers>
-
+  <Grid>
+    <Border Background="{StaticResource MaterialDesign.Brush.Background}">
       <TextBlock Text="ここにメディアファイルをドロップ"
         HorizontalAlignment="Center" VerticalAlignment="Center" />
     </Border>

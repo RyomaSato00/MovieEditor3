@@ -22,7 +22,7 @@ internal partial class YesNoDialogViewModel : ObservableObject
     [RelayCommand]
     private void Answer(bool isYes)
     {
-        DialogHost.Close(null);
+        DialogHost.Close(nameof(MainWindow));
         _answered?.SetResult(isYes);
     }
 

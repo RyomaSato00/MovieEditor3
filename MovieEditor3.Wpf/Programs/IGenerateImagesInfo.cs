@@ -18,7 +18,7 @@ internal interface IGenerateImagesInfo
     /// <summary>
     /// 生成するフレームの総数を取得します
     /// </summary>
-    public int CountOfFrames { get; }
+    public int TotalFrames { get; }
 
     /// <summary>
     /// 生成する画像の品質を取得します
@@ -36,12 +36,7 @@ internal interface IGenerateImagesInfo
     public TimeSpan? EndPoint { get; }
 
     /// <summary>
-    /// 出力先ディレクトリを取得します
+    /// メディアファイルのファイル名（拡張子なし）を取得します
     /// </summary>
-    public string OutputDirectory { get; }
-
-    /// <summary>
-    /// 出力ファイル名のベース名を取得します
-    /// </summary>
-    public string OutputName { get; }
+    public string FileName { get; }
 }

@@ -13,11 +13,31 @@ namespace MovieEditor3.Wpf.ViewModels;
 /// </summary>
 internal partial class ItemInfo : ObservableObject, IMovieEditViewProperty, IMediaPlayerProperty, ICompInfo, IGenerateImagesInfo
 {
+    /// <summary>
+    /// デフォルトのパラメータ値
+    /// </summary>
     private const int DEFAULT_PARAM_VALUE = -1;
 
-    private const string CODEC_HEVC = "hevc";
+    /// <summary>
+    /// デフォルトのコーデック
+    /// </summary>
+    private const string DEFAULT_CODEC_HEVC = "hevc";
+
+    /// <summary>
+    /// デフォルトの1秒あたりの画像フレーム数
+    /// </summary>
+    private const int DEFAULT_FRAMES_PER_SECOND = 5;
+
+    /// <summary>
+    /// デフォルトの画像品質
+    /// </summary>
+    private const int DEFAULT_QUALITY = 0;
 
     public string FilePath { get; }
+
+    public string FileName { get; }
+
+    public string GuidName { get; }
 
     public MediaInfo OriginalMediaInfo { get; private set; } = MediaInfo.Empty;
 
@@ -57,19 +77,15 @@ internal partial class ItemInfo : ObservableObject, IMovieEditViewProperty, IMed
 
     [ObservableProperty] private float _frameRate = DEFAULT_PARAM_VALUE;
 
-    [ObservableProperty] private string _codec = CODEC_HEVC;
+    [ObservableProperty] private string _codec = DEFAULT_CODEC_HEVC;
 
     [ObservableProperty] private bool _isAudioDisabled = true;
 
-    [ObservableProperty] private int _framesPerSecond = DEFAULT_PARAM_VALUE;
+    [ObservableProperty] private int _framesPerSecond = DEFAULT_FRAMES_PER_SECOND;
 
-    [ObservableProperty] private int _countOfFrames = DEFAULT_PARAM_VALUE;
+    [ObservableProperty] private int _totalFrames = DEFAULT_PARAM_VALUE;
 
-    [ObservableProperty] private int _quality = DEFAULT_PARAM_VALUE;
-
-    [ObservableProperty] private string _outputDirectory;
-
-    [ObservableProperty] private string _outputName = string.Empty;
+    [ObservableProperty] private int _quality = DEFAULT_QUALITY;
 
     /// <summary>
     /// アイテムの一意識別子
@@ -77,25 +93,22 @@ internal partial class ItemInfo : ObservableObject, IMovieEditViewProperty, IMed
     private readonly Guid _identifier;
 
     /// <summary>
-    /// 指定したファイルパスとユーザー設定からアイテム情報を初期化します
+    /// 指定したファイルパスからアイテム情報を初期化します
     /// </summary>
     /// <param name="filePath">メディアファイルのパス</param>
-    /// <param name="userSetting">ユーザー設定</param>
-    public ItemInfo(string filePath, UserSetting userSetting)
+    public ItemInfo(string filePath)
     {
         _identifier = Guid.NewGuid();
         FilePath = filePath;
-        OutputDirectory = userSetting.OutputDirectory;
-        var fileName = Path.GetFileNameWithoutExtension(filePath);
-        OutputName = $"{fileName}_{_identifier}";
+        FileName = Path.GetFileNameWithoutExtension(filePath);
+        GuidName = $"{FileName}_{_identifier}";
     }
 
     /// <summary>
     /// 既存のアイテム情報からコピーして新しいアイテム情報を初期化します
     /// </summary>
     /// <param name="itemInfo">コピー元のアイテム情報</param>
-    /// <param name="userSetting">ユーザー設定</param>
-    public ItemInfo(ItemInfo itemInfo, UserSetting userSetting) : this(itemInfo.FilePath, userSetting)
+    public ItemInfo(ItemInfo itemInfo) : this(itemInfo.FilePath)
     {
         // メディア情報をコピー（ディープコピー）
         OriginalMediaInfo = itemInfo.OriginalMediaInfo with { };
@@ -160,7 +173,7 @@ internal partial class ItemInfo : ObservableObject, IMovieEditViewProperty, IMed
     /// <param name="destination">コピー先のアイテム情報</param>
     /// <remarks>
     /// このメソッドは、編集に関連するプロパティのみをコピーします。
-    /// ファイルパスやGUID、出力ディレクトリなどの識別情報はコピーされません。
+    /// ファイルパスやGUIDなどの識別情報はコピーされません。
     /// </remarks>
     public static void Copy(ItemInfo source, ItemInfo destination)
     {
@@ -177,7 +190,7 @@ internal partial class ItemInfo : ObservableObject, IMovieEditViewProperty, IMed
         destination.Codec = source.Codec;
         destination.IsAudioDisabled = source.IsAudioDisabled;
         destination.FramesPerSecond = source.FramesPerSecond;
-        destination.CountOfFrames = source.CountOfFrames;
+        destination.TotalFrames = source.TotalFrames;
         destination.Quality = source.Quality;
     }
 }

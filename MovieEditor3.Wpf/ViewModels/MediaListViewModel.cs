@@ -7,7 +7,11 @@ using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using MaterialDesignThemes.Wpf;
+
+using MovieEditor3.Wpf.Messengers;
 using MovieEditor3.Wpf.Programs;
+using MovieEditor3.Wpf.Views;
 
 using Reactive.Bindings;
 
@@ -37,6 +41,8 @@ internal partial class MediaListViewModel : ObservableObject
     /// 現在DataGridで選択されているアイテムのリスト
     /// </summary>
     public IReadOnlyList<ItemInfo> SelectedItems => _selectedItems;
+
+    [ObservableProperty] private ShowDialogRequest? _showWaitingDialogReq = null;
 
     /// <summary>
     /// ドロップイベントハンドラ
@@ -132,7 +138,7 @@ internal partial class MediaListViewModel : ObservableObject
     [RelayCommand]
     private void Clone(ItemInfo itemInfo)
     {
-        var cloneItem = new ItemInfo(itemInfo, _userSetting);
+        var cloneItem = new ItemInfo(itemInfo);
         RegisterItemAt(cloneItem, MediaItems.IndexOf(itemInfo) + 1);
     }
 
@@ -169,7 +175,7 @@ internal partial class MediaListViewModel : ObservableObject
     /// <returns>非同期タスク</returns>
     public async Task AddItemAsync(string file)
     {
-        var item = new ItemInfo(file, _userSetting);
+        var item = new ItemInfo(file);
 
         await Task.Run(item.LoadInfo);
 
@@ -183,10 +189,14 @@ internal partial class MediaListViewModel : ObservableObject
     public async Task AddItemsAsync(IEnumerable<string> files)
     {
         // 並列処理用のワークスペース生成
-        var workspace = files.Select(file => new ItemInfo(file, _userSetting)).ToArray();
+        var workspace = files.Select(file => new ItemInfo(file)).ToArray();
+
+        ShowWaitingDialogReq = new ShowDialogRequest();
 
         // 非同期で並列処理実行
         await Task.Run(() => CreateItems(workspace));
+
+        DialogHost.Close(nameof(MediaListView));
 
         // 生成したアイテムをリストに追加
         foreach (var item in workspace)
@@ -321,6 +331,32 @@ internal partial class MediaListViewModel : ObservableObject
             {
                 // コレクションの件数が0か0でないかを監視
                 _isEmpty.Value = 0 == mediaItems.Count;
+
+                // 全選択状態を更新
+                var isAllSelected = true;       // すべて選択状態？
+                var isSelectedExist = false;        // 選択状態のアイテムが1つ以上存在する？
+                foreach (var item in mediaItems)
+                {
+                    isAllSelected &= item.IsSelected;
+                    isSelectedExist |= item.IsSelected;
+                }
+
+                // すべて選択状態
+                if (isAllSelected && isSelectedExist)
+                {
+                    IsAllSelected.Value = true;
+                }
+                // すべて非選択状態
+                else if (false == isAllSelected && false == isSelectedExist)
+                {
+                    IsAllSelected.Value = false;
+                }
+                // 選択状態が混在する場合
+                else
+                {
+                    IsAllSelected.Value = null;
+                }
+
             }
             break;
 

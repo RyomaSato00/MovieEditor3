@@ -37,45 +37,39 @@
       <messenger:ShowSettingDialogAction />
     </xaml:PropertyChangedTrigger>
   </xaml:Interaction.Triggers>
-  <mate:DialogHost DialogTheme="Inherit">
 
-    <Grid>
-      <!-- エンプティステート表示 -->
-      <views:EmptyStateView DataContext="{Binding EmptyStateViewContext}" />
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />   <!-- ヘッダー -->
+      <RowDefinition Height="*" />    <!-- コンテンツ -->
+      <RowDefinition Height="Auto" />   <!-- フッター -->
+    </Grid.RowDefinitions>
 
-      <Grid
-        Visibility="{Binding IsContentVisible, Converter={StaticResource Bool2VisibilityConverter}}">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto" />   <!-- ヘッダー -->
-          <RowDefinition Height="*" />    <!-- コンテンツ -->
-          <RowDefinition Height="Auto" />   <!-- フッター -->
-        </Grid.RowDefinitions>
+    <Border Grid.Row="0" Background="{DynamicResource MaterialDesign.Brush.Primary}">
+      <views:HeaderView DataContext="{Binding HeaderViewContext}" />
+    </Border>
 
-        <Border Grid.Row="0" Background="{DynamicResource MaterialDesign.Brush.Primary}">
-          <views:HeaderView DataContext="{Binding HeaderViewContext}" />
-        </Border>
+    <mate:DialogHost Grid.Row="1" DialogTheme="Inherit" Identifier="MainWindow">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />   <!-- メディアリスト -->
+          <ColumnDefinition Width="Auto" />   <!-- スプリッター -->
+          <ColumnDefinition Width="*" />    <!-- 編集画面 -->
+        </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="1">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />   <!-- メディアリスト -->
-            <ColumnDefinition Width="Auto" />   <!-- スプリッター -->
-            <ColumnDefinition Width="*" />    <!-- 編集画面 -->
-          </Grid.ColumnDefinitions>
+        <views:MediaListView Grid.Column="0" VerticalAlignment="Stretch"
+          DataContext="{Binding MediaListViewContext}" />
 
-          <views:MediaListView Grid.Column="0" VerticalAlignment="Stretch"
-            DataContext="{Binding MediaListViewContext}" />
+        <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Center"
+          Width="2" Background="{DynamicResource MaterialDesign.Brush.Primary}" />
 
-          <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Center"
-            Width="2" Background="{DynamicResource MaterialDesign.Brush.Primary}" />
-
-          <views:EditView Grid.Column="2" DataContext="{Binding EditViewContext}" />
-        </Grid>
-
-        <Border Grid.Row="2" Background="{DynamicResource MaterialDesign.Brush.Primary}">
-          <views:ExecutionView Margin="4" DataContext="{Binding ExecutionViewContext}" />
-        </Border>
-
+        <views:EditView Grid.Column="2" DataContext="{Binding EditViewContext}" />
       </Grid>
-    </Grid>
-  </mate:DialogHost>
+    </mate:DialogHost>
+
+    <Border Grid.Row="2" Background="{DynamicResource MaterialDesign.Brush.Primary}">
+      <views:FooterView Margin="4" DataContext="{Binding FooterViewContext}" />
+    </Border>
+
+  </Grid>
 </Window>
