@@ -17,6 +17,7 @@
       <Setter Property="FontFamily" Value="Consolas" />
       <Setter Property="Margin" Value="2,4,2,8" />
       <Setter Property="Width" Value="150" />
+      <Setter Property="CaretBrush" Value="{DynamicResource MaterialDesign.Brush.Foreground}" />
     </Style>
     <Style x:Key="BorderHighlightStyle" TargetType="Border">
       <Setter Property="Opacity" Value="0.3" />

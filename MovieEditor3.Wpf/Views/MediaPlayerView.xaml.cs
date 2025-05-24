@@ -1,3 +1,4 @@
+using System.IO;
 using System.Reactive;
 using System.Text;
 using System.Windows;
@@ -66,15 +67,21 @@ public partial class MediaPlayerView : UserControl
     /// メディアを読み込みます
     /// </summary>
     /// <param name="filePath">メディアファイルのパス</param>
-    public void LoadMedia(string filePath)
+    public void LoadMedia(string? filePath)
     {
-        if (filePath is null) return;
         var timeline = (MediaTimeline)_story.Children[0];
-        timeline.Source = new Uri(filePath);
+        if (filePath is null || false == File.Exists(filePath))
+        {
+            timeline.Source = null;
+        }
+        else
+        {
+            timeline.Source = new Uri(filePath);
 
-        _story.Begin();
+            _story.Begin();
 
-        _story.Pause();
+            _story.Pause();
+        }
     }
 
     /// <summary>

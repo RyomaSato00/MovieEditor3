@@ -41,10 +41,10 @@ internal partial class CropAreaViewModel : ObservableObject
     /// クロップ領域情報を読み込みます
     /// </summary>
     /// <param name="property">アイテム別のクロップ情報を提供するプロパティ</param>
-    public void LoadCropAreaInfo(ICropProperty property)
+    public void LoadCropAreaInfo(ICropProperty? property)
     {
         _property = property;
-        if (Rect.Empty == property.CropRect)
+        if (property is null || Rect.Empty == property.CropRect)
         {
             ClearCropArea();
         }

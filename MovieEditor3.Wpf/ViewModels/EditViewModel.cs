@@ -67,12 +67,9 @@ internal partial class EditViewModel : ObservableObject
     public void SelectItem(ItemInfo? itemInfo)
     {
         SelectedItem = itemInfo;
-        if (itemInfo is not null)
-        {
-            MediaPlayerViewContext.LoadMedia(itemInfo);
-            MovieEditViewContext.LoadMovieEditInfo(itemInfo);
-            CropEditViewContext.LoadCropEditInfo(itemInfo);
-        }
+        MediaPlayerViewContext.LoadMedia(itemInfo);
+        MovieEditViewContext.LoadMovieEditInfo(itemInfo);
+        CropEditViewContext.LoadCropEditInfo(itemInfo);
     }
 
     /// <summary>

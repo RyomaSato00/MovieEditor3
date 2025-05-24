@@ -83,7 +83,7 @@ internal partial class MovieEditViewModel : ObservableObject
     /// 動画編集情報を読み込みます
     /// </summary>
     /// <param name="property">動画編集プロパティ</param>
-    public void LoadMovieEditInfo(IMovieEditViewProperty property)
+    public void LoadMovieEditInfo(IMovieEditViewProperty? property)
     {
         Property = property;
     }

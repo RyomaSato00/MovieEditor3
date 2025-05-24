@@ -39,6 +39,7 @@
               <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
                 <Setter Property="TextWrapping" Value="Wrap" />
                 <Setter Property="TextAlignment" Value="Left" />
+                <Setter Property="CaretBrush" Value="{DynamicResource MaterialDesign.Brush.Foreground}" />
               </Style>
             </mate:DataGridTextColumn.EditingElementStyle>
           </mate:DataGridTextColumn>

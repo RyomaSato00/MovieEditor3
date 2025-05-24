@@ -164,7 +164,7 @@ internal partial class MediaPlayerViewModel : ObservableObject
     /// メディアを読み込みます
     /// </summary>
     /// <param name="itemInfo">読み込むメディアのアイテム情報</param>
-    public void LoadMedia(IMediaPlayerProperty itemInfo)
+    public void LoadMedia(IMediaPlayerProperty? itemInfo)
     {
         // StartPoint = itemInfo.StartPoint;
         // EndPoint = itemInfo.EndPoint;
@@ -174,7 +174,15 @@ internal partial class MediaPlayerViewModel : ObservableObject
         CurrentTime = TimeSpan.Zero;
         ChangeSliderValueReq = new SeekRequest { Offset = TimeSpan.Zero };
 
-        LoadMediaReq = new LoadMediaRequest { FilePath = itemInfo.FilePath };
+        if (itemInfo is null)
+        {
+            LoadMediaReq = new LoadMediaRequest { FilePath = null };
+        }
+        else
+        {
+            LoadMediaReq = new LoadMediaRequest { FilePath = itemInfo.FilePath };
+        }
+
         CropAreaContext.LoadCropAreaInfo(itemInfo);
     }
 

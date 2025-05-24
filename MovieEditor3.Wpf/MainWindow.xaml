@@ -14,7 +14,8 @@
   <Window.Resources>
     <BooleanToVisibilityConverter x:Key="Bool2VisibilityConverter" />
     <views:CommandCheckDialog x:Key="CommandCheckDialog"
-      DataContext="{Binding CommandCheckDialogContext}" />
+      DataContext="{Binding CommandCheckDialogContext}"
+      MaxHeight="{Binding ActualHeight, ElementName=ContentArea}" />
     <views:ProgressDialog x:Key="ProgressDialog" DataContext="{Binding ProgressDialogContext}" />
     <views:YesNoDialog x:Key="DeleteDialog" DataContext="{Binding DeleteDialogContext}" />
     <views:SettingDialog x:Key="SettingDialog" DataContext="{Binding SettingDialogContext}" />
@@ -49,7 +50,7 @@
       <views:HeaderView DataContext="{Binding HeaderViewContext}" />
     </Border>
 
-    <mate:DialogHost Grid.Row="1" DialogTheme="Inherit" Identifier="MainWindow">
+    <mate:DialogHost x:Name="ContentArea" Grid.Row="1" DialogTheme="Inherit" Identifier="MainWindow">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto" />   <!-- メディアリスト -->

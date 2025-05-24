@@ -47,7 +47,7 @@ internal partial class CropEditViewModel : ObservableObject
     /// クロップ編集情報を読み込みます
     /// </summary>
     /// <param name="property">クロップ情報を提供するプロパティ</param>
-    public void LoadCropEditInfo(ICropProperty property)
+    public void LoadCropEditInfo(ICropProperty? property)
     {
         Property = property;
     }

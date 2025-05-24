@@ -101,7 +101,7 @@ internal class SetupMediaPlayerRequest
 
 internal class LoadMediaRequest
 {
-    public required string FilePath { get; init; }
+    public required string? FilePath { get; init; }
 }
 
 internal class MediaActionRequest { }

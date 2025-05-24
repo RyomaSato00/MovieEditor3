@@ -12,7 +12,7 @@
   </UserControl.Resources>
   
   <Grid>
-    <Border Background="{StaticResource MaterialDesign.Brush.Background}">
+    <Border Background="{DynamicResource MaterialDesign.Brush.Background}">
       <TextBlock Text="ここにメディアファイルをドロップ"
         HorizontalAlignment="Center" VerticalAlignment="Center" />
     </Border>
