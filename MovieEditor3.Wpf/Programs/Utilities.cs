@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 
 namespace MovieEditor3.Wpf.Programs;
@@ -35,11 +36,41 @@ internal static class Utilities
 
                 duplicateCount++;
 
-            // 重複しないファイルパスが見つかるまでカウントアップ
+                // 重複しないファイルパスが見つかるまでカウントアップ
             } while (File.Exists(result));
 
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// エクスプローラーの実行ファイル名
+    /// </summary>
+    private const string EXPLORER_EXE = "EXPLORER.EXE";
+
+    /// <summary>
+    /// 指定されたディレクトリパスをWindowsエクスプローラーで開きます
+    /// </summary>
+    /// <param name="dirPath">開くディレクトリのパス</param>
+    /// <returns>エクスプローラーの起動に成功した場合はtrue、失敗した場合はfalse</returns>
+    public static async Task<bool> OpenExplorerAsync(string dirPath)
+    {
+        var isSuccess = false;
+
+        if (Directory.Exists(dirPath))
+        {
+            var info = new ProcessStartInfo(EXPLORER_EXE)
+            {
+                Arguments = $"\"{dirPath}\"",
+                UseShellExecute = true,
+            };
+
+            using var process = new Process { StartInfo = info };
+            isSuccess = process.Start();
+            await process.WaitForExitAsync();
+        }
+
+        return isSuccess;
     }
 }

@@ -24,7 +24,7 @@ internal partial class SettingDialogViewModel : ObservableObject
     /// <summary>
     /// 出力先ディレクトリのパス
     /// </summary>
-    [ObservableProperty] private string _outputDirectory;
+    [ObservableProperty] private string _outputDirectory = string.Empty;
 
     /// <summary>
     /// ダイアログをキャンセルして閉じます
@@ -65,7 +65,7 @@ internal partial class SettingDialogViewModel : ObservableObject
     public SettingDialogViewModel(UserSetting userSetting)
     {
         UserSetting.Copy(userSetting, UserSettingBackup);
-        OutputDirectory = userSetting.OutputDirectory;
+        ReadSetting();
     }
 
     /// <summary>

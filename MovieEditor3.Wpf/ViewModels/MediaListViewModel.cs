@@ -157,14 +157,8 @@ internal partial class MediaListViewModel : ObservableObject
     /// </summary>
     private readonly List<ItemInfo> _selectedItems = [];
 
-    /// <summary>
-    /// ユーザー設定
-    /// </summary>
-    private readonly UserSetting _userSetting;
-
-    public MediaListViewModel(UserSetting userSetting)
+    public MediaListViewModel()
     {
-        _userSetting = userSetting;
         MediaItems.CollectionChanged += OnCollectionChanged;
     }
 

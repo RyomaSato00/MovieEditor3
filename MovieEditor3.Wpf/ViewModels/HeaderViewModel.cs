@@ -10,22 +10,17 @@ using MovieEditor3.Wpf.Programs;
 
 namespace MovieEditor3.Wpf.ViewModels;
 
-internal partial class HeaderViewModel(UserSetting userSetting) : ObservableObject
+internal partial class HeaderViewModel : ObservableObject
 {
-    /// <summary>
-    /// エクスプローラーの実行ファイル名
-    /// </summary>
-    private const string EXPLORER_EXE = "EXPLORER.EXE";
-
-    /// <summary>
-    /// 出力先ディレクトリのパス
-    /// </summary>
-    public string OutputDirectory { get; set; } = userSetting.OutputDirectory;
-
     /// <summary>
     /// ファイル結合リクエストを通知するObservable
     /// </summary>
     public IObservable<Unit> JoinFilesRequested => _joinFilesRequested;
+
+    /// <summary>
+    /// エクスプローラーで出力先ディレクトリを開くリクエストを通知するObservable
+    /// </summary>
+    public IObservable<Unit> OpenExplorerRequested => _openExplorerRequested;
 
     /// <summary>
     /// 設定画面を開くリクエストを通知するObservable
@@ -42,27 +37,12 @@ internal partial class HeaderViewModel(UserSetting userSetting) : ObservableObje
     }
 
     /// <summary>
-    /// エクスプローラーで出力先ディレクトリを開きます
+    /// エクスプローラーで出力先ディレクトリを開くリクエストを発行します
     /// </summary>
-    /// <remarks>
-    /// 出力先ディレクトリが存在しない場合は処理を中断します
-    /// </remarks>
     [RelayCommand]
     private void OpenExplorer()
     {
-        // 出力先ディレクトリが存在しない場合は処理を中断
-        if (false == Directory.Exists(OutputDirectory)) return;
-
-        // 出力先ディレクトリを開く
-        var info = new ProcessStartInfo(EXPLORER_EXE)
-        {
-            Arguments = $"\"{OutputDirectory}\"",
-            UseShellExecute = true,
-        };
-
-        using var process = new Process { StartInfo = info };
-        process.Start();
-        _ = process.WaitForExitAsync();
+        _openExplorerRequested.OnNext(Unit.Default);
     }
 
     /// <summary>
@@ -78,6 +58,12 @@ internal partial class HeaderViewModel(UserSetting userSetting) : ObservableObje
     /// ファイル結合リクエストを通知するSubject
     /// </summary>
     private readonly Subject<Unit> _joinFilesRequested = new();
+
+    /// <summary>
+    /// エクスプローラで出力先ディレクトリを開くリクエストを通知するSubject
+    /// </summary>
+    /// <returns></returns>
+    private readonly Subject<Unit> _openExplorerRequested = new();
 
     /// <summary>
     /// 設定画面を開くリクエストを通知するSubject

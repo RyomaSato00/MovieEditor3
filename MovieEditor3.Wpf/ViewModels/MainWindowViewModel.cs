@@ -24,7 +24,7 @@ internal partial class MainWindowViewModel : ObservableObject
     /// <summary>
     /// メディアリスト用ViewModel
     /// </summary>
-    public MediaListViewModel MediaListViewContext { get; }
+    public MediaListViewModel MediaListViewContext { get; } = new();
 
     /// <summary>
     /// 編集エリア用ViewModel
@@ -35,7 +35,7 @@ internal partial class MainWindowViewModel : ObservableObject
     /// ヘッダービュー用ViewModel
     /// </summary>
     /// <returns></returns>
-    public HeaderViewModel HeaderViewContext { get; }
+    public HeaderViewModel HeaderViewContext { get; } = new();
 
     /// <summary>
     /// フッタービュー用ViewModel
@@ -69,8 +69,6 @@ internal partial class MainWindowViewModel : ObservableObject
 
     public MainWindowViewModel(UserSetting userSetting)
     {
-        MediaListViewContext = new MediaListViewModel(userSetting);
-        HeaderViewContext = new HeaderViewModel(userSetting);
         SettingDialogContext = new SettingDialogViewModel(userSetting);
 
         // 各種イベント設定
@@ -78,6 +76,7 @@ internal partial class MainWindowViewModel : ObservableObject
         MediaListViewContext.OnSelected.Subscribe(EditViewContext.SelectItem);
         MediaListViewContext.IsAllSelected.Subscribe(isSelected => FooterViewContext.IsExecutionEnabled.Value = isSelected ?? true);
         HeaderViewContext.JoinFilesRequested.Subscribe(unit => _ = JoinFilesAsync());
+        HeaderViewContext.OpenExplorerRequested.Subscribe(unit => _ = Utilities.OpenExplorerAsync(SettingDialogContext.UserSettingBackup.OutputDirectory));
         HeaderViewContext.OpenSettingRequested.Subscribe(_ => ShowSettingDialogReq = new ShowDialogRequest());
         FooterViewContext.CompCommand.Subscribe(unit => _ = CompAsync());
         FooterViewContext.GenerateImagesCommand.Subscribe(unit => _ = GenerateImagesAsync());
