@@ -128,6 +128,15 @@ public partial class MediaPlayerView : UserControl
     }
 
     /// <summary>
+    /// 動画を指定された角度だけ回転させます
+    /// </summary>
+    /// <param name="angle">回転角</param>
+    public void RotateMediaPlayer(double angle)
+    {
+        MediaPlayerRotate.Angle += angle;
+    }
+
+    /// <summary>
     /// 動画更新時処理
     /// </summary>
     /// <param name="sender"></param>

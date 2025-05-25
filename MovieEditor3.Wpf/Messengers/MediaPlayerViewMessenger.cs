@@ -91,6 +91,18 @@ internal class ChangeSliderValueAction : TriggerAction<MediaPlayerView>
     }
 }
 
+internal class RotateMediaPlayerAction : TriggerAction<MediaPlayerView>
+{
+    protected override void Invoke(object parameter)
+    {
+        if (parameter is DependencyPropertyChangedEventArgs e
+        && e.NewValue is RotateRequest request)
+        {
+            AssociatedObject.RotateMediaPlayer(request.Angle);
+        }
+    }
+}
+
 internal class SetupMediaPlayerRequest
 {
     public required IObserver<TimeSpan> DurationChanged { get; init; }
@@ -114,4 +126,9 @@ internal class MuteRequest
 internal class SeekRequest
 {
     public required TimeSpan Offset { get; init; }
+}
+
+internal class RotateRequest
+{
+    public required double Angle { get; init; }
 }

@@ -1,5 +1,7 @@
 using System.Windows;
 
+using MovieEditor3.Wpf.Programs;
+
 namespace MovieEditor3.Wpf.ViewModels;
 
 /// <summary>
@@ -21,4 +23,9 @@ internal interface ICropProperty
     /// 元の動画の高さを取得します
     /// </summary>
     public int OriginalHeight { get; }
+
+    /// <summary>
+    /// 動画の回転情報を取得します
+    /// </summary>
+    public RotateID Rotation { get; set; }
 }

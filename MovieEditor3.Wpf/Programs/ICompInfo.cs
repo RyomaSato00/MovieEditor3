@@ -91,15 +91,20 @@ internal enum RotateID
     /// <summary>
     /// 90度回転
     /// </summary>
-    Rotate90 = 90,
+    Rotate90,
 
     /// <summary>
     /// 180度回転
     /// </summary>
-    Rotate180 = 180,
+    Rotate180,
 
     /// <summary>
     /// 270度回転
     /// </summary>
-    Rotate270 = 270,
+    Rotate270,
+
+    /// <summary>
+    /// 列挙型の要素数
+    /// </summary>
+    Count
 }

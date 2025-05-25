@@ -17,6 +17,8 @@ namespace MovieEditor3.Wpf.ViewModels;
 /// </summary>
 internal partial class MediaPlayerViewModel : ObservableObject
 {
+    private const double ROTATE_UNIT_ANGLE = 90;
+
     /// <summary>
     /// クロップ領域のビューモデル
     /// </summary>
@@ -47,7 +49,7 @@ internal partial class MediaPlayerViewModel : ObservableObject
     /// </summary>
     [ObservableProperty] private TimeSpan _duration = TimeSpan.Zero;
 
-/// <summary>
+    /// <summary>
     /// メディアプレーヤーのプロパティ
     /// </summary>
     [ObservableProperty] private IMediaPlayerProperty? _property = null;
@@ -122,6 +124,7 @@ internal partial class MediaPlayerViewModel : ObservableObject
     [ObservableProperty] private MuteRequest? _muteReq = null;
     [ObservableProperty] private SeekRequest? _seekReq = null;
     [ObservableProperty] private SeekRequest? _changeSliderValueReq = null;
+    [ObservableProperty] private RotateRequest? _rotateMediaPlayerReq = null;
 
     /// <summary>
     /// 総再生時間変更通知用のサブジェクト
@@ -205,6 +208,22 @@ internal partial class MediaPlayerViewModel : ObservableObject
     public void ClearCropArea()
     {
         CropAreaContext.ClearCropArea();
+    }
+
+    /// <summary>
+    /// 動画を回転します
+    /// </summary>
+    /// <param name="direction">0以上なら右方向、0未満なら左方向</param>
+    public void RotateMediaPlayer(int direction)
+    {
+        if (0 <= direction)
+        {
+            RotateMediaPlayerReq = new RotateRequest { Angle = ROTATE_UNIT_ANGLE };
+        }
+        else
+        {
+            RotateMediaPlayerReq = new RotateRequest { Angle = -ROTATE_UNIT_ANGLE };
+        }
     }
 
     /// <summary>

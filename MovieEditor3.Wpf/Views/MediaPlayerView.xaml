@@ -56,6 +56,10 @@
     <xaml:PropertyChangedTrigger Binding="{Binding ChangeSliderValueReq}">
       <messenger:ChangeSliderValueAction />
     </xaml:PropertyChangedTrigger>
+
+    <xaml:PropertyChangedTrigger Binding="{Binding RotateMediaPlayerReq}">
+      <messenger:RotateMediaPlayerAction />
+    </xaml:PropertyChangedTrigger>
   </xaml:Interaction.Triggers>
 
   <Grid>
@@ -106,13 +110,15 @@
             Width="{Binding ActualWidth, ElementName=MediaPlayer}"
             Height="{Binding ActualHeight, ElementName=MediaPlayer}" />
         </Grid>
+        <Grid.LayoutTransform>
+          <RotateTransform x:Name="MediaPlayerRotate" />
+        </Grid.LayoutTransform>
       </Grid>
     </Border>
 
     <Slider Grid.Row="1" x:Name="PositionSlider" VerticalAlignment="Center" Margin="8"
       Maximum="{Binding Duration.TotalMilliseconds, Mode=OneWay}"
-      ValueChanged="PositionSlider_ValueChanged"
-      IsSelectionRangeEnabled="True"
+      ValueChanged="PositionSlider_ValueChanged" IsSelectionRangeEnabled="True"
       SelectionStart="{Binding Property.StartPoint.TotalMilliseconds, Mode=OneWay}"
       SelectionEnd="{Binding Property.EndPoint.TotalMilliseconds, Mode=OneWay}" />
 

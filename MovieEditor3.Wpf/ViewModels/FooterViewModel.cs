@@ -21,18 +21,18 @@ internal partial class FooterViewModel : ObservableObject
     /// <summary>
     /// 圧縮処理を実行するコマンド
     /// </summary>
-    public ReactiveCommand CompCommand { get; }
+    public ReactiveCommandSlim CompCommand { get; }
 
     /// <summary>
     /// 画像生成処理を実行するコマンド
     /// </summary>
-    public ReactiveCommand GenerateImagesCommand { get; }
+    public ReactiveCommandSlim GenerateImagesCommand { get; }
 
     public FooterViewModel()
     {
         // IsExecutionEnabledがtrueのときのみ実行可能なコマンド
-        CompCommand = IsExecutionEnabled.ToReactiveCommand();
-        GenerateImagesCommand = IsExecutionEnabled.ToReactiveCommand();
+        CompCommand = IsExecutionEnabled.ToReactiveCommandSlim();
+        GenerateImagesCommand = IsExecutionEnabled.ToReactiveCommandSlim();
     }
 
 }
