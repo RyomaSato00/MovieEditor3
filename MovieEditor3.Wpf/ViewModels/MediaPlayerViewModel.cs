@@ -66,14 +66,24 @@ internal partial class MediaPlayerViewModel : ObservableObject
     [RelayCommand]
     private void ToggleMedia(bool isPlaying)
     {
-        if (isPlaying)
+        if (IsStoryCompleted)
         {
-            Play();
+            IsStoryCompleted = false;
+            IsPlaying = true;
+            Seek(TimeSpan.Zero);
         }
         else
         {
-            Pause();
+            if (isPlaying)
+            {
+                Play();
+            }
+            else
+            {
+                Pause();
+            }
         }
+
     }
 
     /// <summary>
@@ -92,17 +102,6 @@ internal partial class MediaPlayerViewModel : ObservableObject
     [RelayCommand]
     private void SkipPrevious()
     {
-        Seek(TimeSpan.Zero);
-    }
-
-    /// <summary>
-    /// メディアを最初から再生します
-    /// </summary>
-    [RelayCommand]
-    private void Replay()
-    {
-        IsStoryCompleted = false;
-        IsPlaying = true;
         Seek(TimeSpan.Zero);
     }
 
