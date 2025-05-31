@@ -79,8 +79,6 @@ public partial class MediaPlayerView : UserControl
             timeline.Source = new Uri(filePath);
 
             _story.Begin();
-
-            _story.Pause();
         }
     }
 
@@ -181,6 +179,8 @@ public partial class MediaPlayerView : UserControl
     private void MediaPlayer_MediaOpened(object sender, EventArgs e)
     {
         if (sender is not MediaElement mediaElement) return;
+
+        Pause();
 
         TimeSpan duration = TimeSpan.Zero;
         if (mediaElement.NaturalDuration.HasTimeSpan)

@@ -101,8 +101,12 @@ internal partial class MediaPlayerViewModel : ObservableObject
     /// メディアの先頭にスキップします
     /// </summary>
     [RelayCommand]
-    private void SkipPrevious()
+    private void SkipToStart()
     {
+        Pause();
+        IsPlaying = false;
+        IsStoryCompleted = false;
+        ChangeSliderValueReq = new SeekRequest { Offset = TimeSpan.Zero };
         Seek(TimeSpan.Zero);
     }
 

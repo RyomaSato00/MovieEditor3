@@ -125,22 +125,14 @@
       SelectionStart="{Binding Property.StartPoint.TotalMilliseconds, Mode=OneWay}"
       SelectionEnd="{Binding Property.EndPoint.TotalMilliseconds, Mode=OneWay}" />
 
-    <Grid Grid.Row="2">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto" />   <!-- 前へ -->
-        <ColumnDefinition Width="Auto" />   <!-- 再生/一時停止 -->
-        <ColumnDefinition Width="Auto" />   <!-- 次へ -->
-        <ColumnDefinition Width="Auto" />   <!-- 音量 -->
-        <ColumnDefinition Width="Auto" />   <!-- 再生時間 -->
-      </Grid.ColumnDefinitions>
-
-      <Button Grid.Column="0" VerticalAlignment="Center" Command="{Binding SkipPreviousCommand}"
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left">
+      <Button VerticalAlignment="Center" Command="{Binding SkipToStartCommand}" ToolTip="先頭から再生"
         Style="{StaticResource MaterialDesignIconForegroundButton}">
         <mate:PackIcon Kind="SkipPrevious" Width="18" Height="18" />
       </Button>
 
       <!-- 再生/一時停止 -->
-      <ToggleButton Grid.Column="1" IsChecked="{Binding IsPlaying}" VerticalAlignment="Center"
+      <ToggleButton IsChecked="{Binding IsPlaying}" VerticalAlignment="Center" ToolTip="再生/一時停止"
         Command="{Binding ToggleMediaCommand}"
         CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}">
         <!--IsChecked=FalseのときはPlayアイコン、IsChecked=TrueのときはPauseアイコンを表示する-->
@@ -162,6 +154,7 @@
                 </Setter>
               </Trigger>
 
+              <!-- ストーリー再生終了時はReplayアイコンを表示する -->
               <DataTrigger Binding="{Binding IsStoryCompleted}" Value="True">
                 <Setter Property="Content">
                   <Setter.Value>
@@ -174,13 +167,17 @@
         </ToggleButton.Style>
       </ToggleButton>
 
-      <Button Grid.Column="2" VerticalAlignment="Center"
-        Style="{StaticResource MaterialDesignIconForegroundButton}">
-        <mate:PackIcon Kind="SkipNext" Width="18" Height="18" />
-      </Button>
+      <TextBlock VerticalAlignment="Center" FontFamily="Consolas" Margin="12,0,0,0">
+        <TextBlock.Text>
+          <MultiBinding StringFormat="{}{0} / {1}">
+            <Binding Path="CurrentTime" Converter="{StaticResource TimeSpanCustomConverter}" />
+            <Binding Path="Duration" Converter="{StaticResource TimeSpanCustomConverter}" />
+          </MultiBinding>
+        </TextBlock.Text>
+      </TextBlock>
 
       <!-- 音あり/音なし -->
-      <ToggleButton Grid.Column="3" IsChecked="{Binding IsMute}" VerticalAlignment="Center"
+      <ToggleButton IsChecked="{Binding IsMute}" VerticalAlignment="Center" Margin="12,0,0,0" ToolTip="ミュート"
         Command="{Binding ToggleMuteCommand}"
         CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}">
         <ToggleButton.Style>
@@ -205,16 +202,6 @@
         </ToggleButton.Style>
       </ToggleButton>
 
-
-      <TextBlock Grid.Column="4" VerticalAlignment="Center" FontFamily="Consolas" Margin="12,0,0,0">
-        <TextBlock.Text>
-          <MultiBinding StringFormat="{}{0} / {1}">
-            <Binding Path="CurrentTime" Converter="{StaticResource TimeSpanCustomConverter}" />
-            <Binding Path="Duration" Converter="{StaticResource TimeSpanCustomConverter}" />
-          </MultiBinding>
-        </TextBlock.Text>
-      </TextBlock>
-
-    </Grid>
+    </StackPanel>
   </Grid>
 </UserControl>
