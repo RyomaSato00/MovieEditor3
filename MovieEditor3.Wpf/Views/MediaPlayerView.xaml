@@ -125,15 +125,16 @@
       SelectionStart="{Binding Property.StartPoint.TotalMilliseconds, Mode=OneWay}"
       SelectionEnd="{Binding Property.EndPoint.TotalMilliseconds, Mode=OneWay}" />
 
-    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left">
-      <Button VerticalAlignment="Center" Command="{Binding SkipToStartCommand}" ToolTip="先頭から再生"
+    <DockPanel Grid.Row="2" LastChildFill="False">
+      <Button DockPanel.Dock="Left" VerticalAlignment="Center"
+        Command="{Binding SkipToStartCommand}" ToolTip="先頭から再生"
         Style="{StaticResource MaterialDesignIconForegroundButton}">
         <mate:PackIcon Kind="SkipPrevious" Width="18" Height="18" />
       </Button>
 
       <!-- 再生/一時停止 -->
-      <ToggleButton IsChecked="{Binding IsPlaying}" VerticalAlignment="Center" ToolTip="再生/一時停止"
-        Command="{Binding ToggleMediaCommand}"
+      <ToggleButton DockPanel.Dock="Left" IsChecked="{Binding IsPlaying}" VerticalAlignment="Center"
+        ToolTip="再生/一時停止" Command="{Binding ToggleMediaCommand}"
         CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}">
         <!--IsChecked=FalseのときはPlayアイコン、IsChecked=TrueのときはPauseアイコンを表示する-->
         <ToggleButton.Style>
@@ -167,7 +168,8 @@
         </ToggleButton.Style>
       </ToggleButton>
 
-      <TextBlock VerticalAlignment="Center" FontFamily="Consolas" Margin="12,0,0,0">
+      <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" FontFamily="Consolas"
+        Margin="12,0,0,0">
         <TextBlock.Text>
           <MultiBinding StringFormat="{}{0} / {1}">
             <Binding Path="CurrentTime" Converter="{StaticResource TimeSpanCustomConverter}" />
@@ -177,8 +179,8 @@
       </TextBlock>
 
       <!-- 音あり/音なし -->
-      <ToggleButton IsChecked="{Binding IsMute}" VerticalAlignment="Center" Margin="12,0,0,0" ToolTip="ミュート"
-        Command="{Binding ToggleMuteCommand}"
+      <ToggleButton DockPanel.Dock="Left" IsChecked="{Binding IsMute}" VerticalAlignment="Center"
+        Margin="12,0,0,0" ToolTip="ミュート" Command="{Binding ToggleMuteCommand}"
         CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}">
         <ToggleButton.Style>
           <Style TargetType="ToggleButton" BasedOn="{StaticResource SimpleToggleButtonStyle}">
@@ -202,6 +204,14 @@
         </ToggleButton.Style>
       </ToggleButton>
 
-    </StackPanel>
+      <Slider DockPanel.Dock="Right" VerticalAlignment="Center" Width="200" Margin="2,0,0,0"
+        IsSnapToTickEnabled="True" Value="1.00" Maximum="2.00" Minimum="0.50" TickFrequency="0.25"
+        TickPlacement="TopLeft" AutoToolTipPlacement="BottomRight" AutoToolTipPrecision="2"
+        ValueChanged="SpeedRatioSlider_ValueChanged" />
+      <!--AutoToolTipPrecisionで小数点以下の桁数を指定-->
+
+      <TextBlock DockPanel.Dock="Right" Text="再生速度：" VerticalAlignment="Center" Margin="24,0,12,0" />
+
+    </DockPanel>
   </Grid>
 </UserControl>

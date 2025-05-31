@@ -200,5 +200,22 @@ public partial class MediaPlayerView : UserControl
     {
         _sliderValueChanged?.OnNext(TimeSpan.FromMilliseconds(Math.Round(e.NewValue)));
     }
+
+    /// <summary>
+    /// 再生速度スライダーの値が変更された時に行う処理
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void SpeedRatioSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_story is null) return;
+
+        var  timeline = (MediaTimeline)_story.Children[0];
+        if (timeline.Source is not null)
+        {
+            // _story.SpeedRatio = e.NewValue;
+            _story.SetSpeedRatio(e.NewValue);
+        }
+    }
 }
 
