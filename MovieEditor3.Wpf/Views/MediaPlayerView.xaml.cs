@@ -89,7 +89,11 @@ public partial class MediaPlayerView : UserControl
     /// </summary>
     public void Play()
     {
-        _story.Resume();
+        var timeline = (MediaTimeline)_story.Children[0];
+        if (timeline.Source is not null)
+        {
+            _story.Resume();
+        }
     }
 
     /// <summary>
@@ -97,7 +101,11 @@ public partial class MediaPlayerView : UserControl
     /// </summary>
     public void Pause()
     {
-        _story.Pause();
+        var timeline = (MediaTimeline)_story.Children[0];
+        if (timeline.Source is not null)
+        {
+            _story.Pause();
+        }
     }
 
     /// <summary>
@@ -115,7 +123,11 @@ public partial class MediaPlayerView : UserControl
     /// <param name="offset">シーク先の位置</param>
     public void Seek(TimeSpan offset)
     {
-        _story.Seek(offset);
+        var timeline = (MediaTimeline)_story.Children[0];
+        if (timeline.Source is not null)
+        {
+            _story.Seek(offset);
+        }
     }
 
     /// <summary>
@@ -157,6 +169,7 @@ public partial class MediaPlayerView : UserControl
     /// <param name="e"></param>
     private void Timeline_Completed(object sender, EventArgs e)
     {
+        _story.Pause();
         _storyEnded?.OnNext(default);
     }
 

@@ -71,6 +71,7 @@ internal partial class MediaPlayerViewModel : ObservableObject
             IsStoryCompleted = false;
             IsPlaying = true;
             Seek(TimeSpan.Zero);
+            Play();
         }
         else
         {
@@ -227,19 +228,32 @@ internal partial class MediaPlayerViewModel : ObservableObject
     /// <summary>
     /// メディアを再生します
     /// </summary>
-    private void Play() => PlayReq = new MediaActionRequest();
+    private void Play()
+    {
+        PlayReq = new MediaActionRequest();
+    }
 
     /// <summary>
     /// メディアを一時停止します
     /// </summary>
-    private void Pause() => PauseReq = new MediaActionRequest();
+    private void Pause()
+    {
+        PauseReq = new MediaActionRequest();
+    }
 
     /// <summary>
     /// 指定した位置にシークします
     /// </summary>
     /// <param name="offset">シーク先の位置</param>
+    private void Seek(TimeSpan offset)
+    {
+        SeekReq = new SeekRequest { Offset = offset };
 
-    private void Seek(TimeSpan offset) => SeekReq = new SeekRequest { Offset = offset };
+        if (IsStoryCompleted)
+        {
+            IsStoryCompleted = false;
+        }
+    }
 
     /// <summary>
     /// スライダーの値を変更します
