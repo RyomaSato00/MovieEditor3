@@ -169,8 +169,7 @@ internal partial class MediaPlayerViewModel : ObservableObject
     /// <param name="itemInfo">読み込むメディアのアイテム情報</param>
     public void LoadMedia(IMediaPlayerProperty? itemInfo)
     {
-        // StartPoint = itemInfo.StartPoint;
-        // EndPoint = itemInfo.EndPoint;
+        Pause();
         Property = itemInfo;
         IsPlaying = false;
         IsStoryCompleted = false;
