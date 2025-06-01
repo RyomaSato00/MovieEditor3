@@ -117,7 +117,7 @@
       <!-- エンプティステート表示 -->
       <Grid
         Visibility="{Binding IsEmpty.Value, Converter={StaticResource Bool2VisibilityConverter}, Mode=OneWay}">
-        <local:EmptyStateView />
+        <local:EmptyStateView DataContext="{Binding EmptyStateViewContext}" />
       </Grid>
     </Grid>
   </mate:DialogHost>

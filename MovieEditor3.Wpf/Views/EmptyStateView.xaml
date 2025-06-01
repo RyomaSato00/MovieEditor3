@@ -5,16 +5,17 @@
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:local="clr-namespace:MovieEditor3.Wpf.Views" mc:Ignorable="d" d:DesignHeight="450"
   xmlns:xaml="http://schemas.microsoft.com/xaml/behaviors"
-  xmlns:behavior="clr-namespace:MovieEditor3.Wpf.Behaviors"
-  d:DesignWidth="800">
-  <UserControl.Resources>
-    <BooleanToVisibilityConverter x:Key="Bool2VisibilityConverter" />
-  </UserControl.Resources>
-  
+  xmlns:behavior="clr-namespace:MovieEditor3.Wpf.Behaviors" d:DesignWidth="800">
+
   <Grid>
     <Border Background="{DynamicResource MaterialDesign.Brush.Background}">
-      <TextBlock Text="ここにメディアファイルをドロップ"
-        HorizontalAlignment="Center" VerticalAlignment="Center" />
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="ここにメディアファイルをドロップ" HorizontalAlignment="Center" />
+        <TextBlock Text="または" HorizontalAlignment="Center" Margin="0,12,0,0" />
+        <Button Content="フォルダを開く" Style="{StaticResource MaterialDesignFlatButton}"
+          HorizontalAlignment="Center" Margin="0,12,0,0"
+          Command="{Binding OpenFolderCommand}" />
+      </StackPanel>
     </Border>
   </Grid>
 </UserControl>

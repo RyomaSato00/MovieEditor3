@@ -50,10 +50,19 @@ internal static class JsonHandler
 
 internal class UserSetting
 {
+    /// <summary>
+    /// 出力先ディレクトリのパス
+    /// </summary>
     public string OutputDirectory { get; set; } = Environment.CurrentDirectory;
+
+    /// <summary>
+    /// 最近使用したメディアのディレクトリパス
+    /// </summary>
+    public string RecentryUsedDirPath { get; set; } = Environment.CurrentDirectory;
 
     public static void Copy(UserSetting src, UserSetting dst)
     {
         dst.OutputDirectory = src.OutputDirectory;
+        dst.RecentryUsedDirPath = src.RecentryUsedDirPath;
     }
 }

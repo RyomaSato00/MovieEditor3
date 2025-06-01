@@ -22,6 +22,9 @@ internal partial class MediaListViewModel : ObservableObject
     /// <summary> メディアアイテムリスト </summary>
     public ObservableCollection<ItemInfo> MediaItems { get; } = [];
 
+    /// <summary> エンプティステートのViewModel </summary>
+    public EmptyStateViewModel EmptyStateViewContext { get; }
+
     /// <summary>
     /// 全選択状態を管理するプロパティ（選択・非選択が混在する場合はnull）
     /// </summary>
@@ -157,9 +160,20 @@ internal partial class MediaListViewModel : ObservableObject
     /// </summary>
     private readonly List<ItemInfo> _selectedItems = [];
 
-    public MediaListViewModel()
+    public MediaListViewModel(UserSetting userSetting)
     {
+        EmptyStateViewContext = new EmptyStateViewModel(userSetting);
+        EmptyStateViewContext.MediaFilesOpened.Subscribe(files => _ = AddItemsAsync(files));
         MediaItems.CollectionChanged += OnCollectionChanged;
+    }
+
+    /// <summary>
+    /// 現在の状態をユーザー設定に保存します。
+    /// </summary>
+    /// <param name="userSetting">保存先のユーザー設定インスタンス</param>
+    public void SaveSetting(UserSetting userSetting)
+    {
+        EmptyStateViewContext.SaveSetting(userSetting);
     }
 
     /// <summary>

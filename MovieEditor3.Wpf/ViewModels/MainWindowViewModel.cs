@@ -24,7 +24,7 @@ internal partial class MainWindowViewModel : ObservableObject
     /// <summary>
     /// メディアリスト用ViewModel
     /// </summary>
-    public MediaListViewModel MediaListViewContext { get; } = new();
+    public MediaListViewModel MediaListViewContext { get; }
 
     /// <summary>
     /// 編集エリア用ViewModel
@@ -69,6 +69,7 @@ internal partial class MainWindowViewModel : ObservableObject
 
     public MainWindowViewModel(UserSetting userSetting)
     {
+        MediaListViewContext = new MediaListViewModel(userSetting);
         SettingDialogContext = new SettingDialogViewModel(userSetting);
 
         // 各種イベント設定
@@ -89,6 +90,7 @@ internal partial class MainWindowViewModel : ObservableObject
     public void SaveSetting(UserSetting userSetting)
     {
         UserSetting.Copy(SettingDialogContext.UserSettingBackup, userSetting);
+        MediaListViewContext.SaveSetting(userSetting);
     }
 
     /// <summary>
