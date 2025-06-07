@@ -30,11 +30,11 @@ internal static class JsonHandler
         }
         catch (FileNotFoundException e)
         {
-            System.Diagnostics.Debug.WriteLine($"\"{e.FileName}\" is not found. A new one will be created.");
+            System.Diagnostics.Trace.WriteLine($"\"{e.FileName}\" is not found. A new one will be created.");
         }
         catch (Exception e)
         {
-            System.Diagnostics.Debug.WriteLine(e);
+            System.Diagnostics.Trace.WriteLine(e);
         }
     }
 

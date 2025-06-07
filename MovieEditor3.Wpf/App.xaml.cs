@@ -14,6 +14,8 @@ namespace MovieEditor3.Wpf;
 /// </summary>
 public partial class App : Application
 {
+    private const string REPORT_FILE_NAME = "report.txt";
+
     /// <summary> キャッシュ用ディレクトリ </summary>
     public static readonly string CacheDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Cache");
 
@@ -39,11 +41,11 @@ public partial class App : Application
         }
 
         // Cache//report.txtにデバッグ用テキストを出力
-        var reportFile = Path.Combine(CacheDirectory, "report.txt");
+        var reportFile = Path.Combine(CacheDirectory, REPORT_FILE_NAME);
         Trace.Listeners.Add(new TextWriterTraceListener(reportFile));
-        Debug.AutoFlush = true;
+        Trace.AutoFlush = true;
 
-        Debug.WriteLine($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss:fff}] The application has started.");
+        Trace.WriteLine($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss:fff}] The application has started.");
 
         // JSONファイルからユーザー設定を読み込む
         JsonHandler.Load();
@@ -56,7 +58,7 @@ public partial class App : Application
 
         base.OnExit(e);
 
-        Debug.WriteLine($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff}] The application has exited.");
+        Trace.WriteLine($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff}] The application has exited.");
 
         foreach (TraceListener listener in Trace.Listeners)
         {

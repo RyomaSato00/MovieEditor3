@@ -26,7 +26,7 @@ internal class ParallelCommandProcessor
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex);
             }
         });
     }

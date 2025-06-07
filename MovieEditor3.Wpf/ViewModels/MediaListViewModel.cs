@@ -272,11 +272,11 @@ internal partial class MediaListViewModel : ObservableObject
             }
             catch (ArgumentException e)
             {
-                System.Diagnostics.Debug.WriteLine($"{e.Message}, param name:{e.ParamName}");
+                System.Diagnostics.Trace.WriteLine($"{e.Message}, param name:{e.ParamName}");
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(e);
+                System.Diagnostics.Trace.WriteLine(e);
             }
         });
     }
