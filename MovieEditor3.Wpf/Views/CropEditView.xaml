@@ -8,7 +8,7 @@
   <Grid>
     <StackPanel>
       <Button Command="{Binding ClearCropAreaCommand}" Width="160" Height="60" Margin="0,30,0,0"
-        HorizontalAlignment="Center" Style="{StaticResource MaterialDesignPaperButton}">
+        HorizontalAlignment="Center" Style="{StaticResource MaterialDesignPaperLightButton}">
         <StackPanel>
           <mate:PackIcon Kind="Reload" Width="20" Height="20" HorizontalAlignment="Center" />
           <TextBlock Text="リセット" HorizontalAlignment="Center" />

@@ -27,7 +27,7 @@
         <DockPanel LastChildFill="False" Margin="0,0,0,24">
           <TextBlock DockPanel.Dock="Left" Text="出力先" Style="{StaticResource TextLabelStyle}" />
           <Button DockPanel.Dock="Right" Command="{Binding SelectOutputDirectoryCommand}"
-            Style="{StaticResource MaterialDesignIconButton}">
+            Style="{StaticResource MaterialDesignIconButton}" Background="{DynamicResource MaterialDesign.Brush.PrimaryLight}">
             <mate:PackIcon Kind="FolderOpen" Width="20" Height="20" HorizontalAlignment="Center" />
           </Button>
           <TextBox DockPanel.Dock="Right" Text="{Binding OutputDirectory}"
