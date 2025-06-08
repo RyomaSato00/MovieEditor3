@@ -22,6 +22,7 @@
           </Storyboard>
           <convert:TimeSpanCustomConverter x:Key="TimeSpanCustomConverter" />
           <convert:BooleanToVisibilityCustomConverter x:Key="BooleanToVisibilityCustomConverter" />
+          <convert:NegateDoubleConverter x:Key="NegateDoubleConverter" />
           <BooleanToVisibilityConverter x:Key="Bool2VisibilityConverter" />
         </ResourceDictionary>
       </ResourceDictionary.MergedDictionaries>
@@ -105,6 +106,10 @@
                 </Style.Triggers>
               </Style>
             </mate:PackIcon.Style>
+            <mate:PackIcon.LayoutTransform>
+              <RotateTransform
+                Angle="{Binding ElementName=MediaPlayerRotate, Path=Angle, Converter={StaticResource NegateDoubleConverter}}" />
+            </mate:PackIcon.LayoutTransform>
           </mate:PackIcon>
         </Border>
         <Grid
