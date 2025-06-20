@@ -143,7 +143,7 @@ public partial class MediaPlayerView : UserControl
     /// <param name="angle">回転角</param>
     public void RotateMediaPlayer(double angle)
     {
-        MediaPlayerRotate.Angle += angle;
+        MediaPlayerRotate.Angle = angle;
     }
 
     /// <summary>

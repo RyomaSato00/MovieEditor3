@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 using MovieEditor3.Wpf.Messengers;
+using MovieEditor3.Wpf.Programs;
 
 using Reactive.Bindings;
 
@@ -131,6 +132,18 @@ internal partial class MediaPlayerViewModel : ObservableObject
     [ObservableProperty] private RotateRequest? _rotateMediaPlayerReq = null;
 
     /// <summary>
+    /// 回転ID（RotateID）ごとの回転角度（度数法）を保持するディクショナリ。
+    /// 例: RotateID.Rotate90 → 90.0
+    /// </summary>
+    private static readonly IReadOnlyDictionary<RotateID, double> RotateDictionary = new Dictionary<RotateID, double>()
+    {
+        { RotateID.None, 0.0 },
+        { RotateID.Rotate90, 90.0 },
+        { RotateID.Rotate180, 180.0 },
+        { RotateID.Rotate270, 270.0 },
+    };
+
+    /// <summary>
     /// 総再生時間変更通知用のサブジェクト
     /// </summary>
     private readonly Subject<TimeSpan> _durationChanged = new();
@@ -150,6 +163,11 @@ internal partial class MediaPlayerViewModel : ObservableObject
     /// </summary>
     /// <returns></returns>
     private readonly Subject<TimeSpan> _sliderValueChanged = new();
+
+    /// <summary>
+    /// 動画の回転角
+    /// </summary>
+    private double _rotateAngle = 0.0;
 
     public MediaPlayerViewModel()
     {
@@ -183,12 +201,15 @@ internal partial class MediaPlayerViewModel : ObservableObject
         if (itemInfo is null)
         {
             LoadMediaReq = new LoadMediaRequest { FilePath = null };
+            _rotateAngle = 0.0;
         }
         else
         {
             LoadMediaReq = new LoadMediaRequest { FilePath = itemInfo.FilePath };
+            _rotateAngle = RotateDictionary[itemInfo.Rotation];
         }
 
+        RotateMediaPlayerReq = new RotateRequest { Angle = _rotateAngle };
         CropAreaContext.LoadCropAreaInfo(itemInfo);
     }
 
@@ -221,12 +242,13 @@ internal partial class MediaPlayerViewModel : ObservableObject
     {
         if (0 <= direction)
         {
-            RotateMediaPlayerReq = new RotateRequest { Angle = ROTATE_UNIT_ANGLE };
+            _rotateAngle += ROTATE_UNIT_ANGLE;
         }
         else
         {
-            RotateMediaPlayerReq = new RotateRequest { Angle = -ROTATE_UNIT_ANGLE };
+            _rotateAngle -= ROTATE_UNIT_ANGLE;
         }
+        RotateMediaPlayerReq = new RotateRequest { Angle = _rotateAngle };
     }
 
     /// <summary>
