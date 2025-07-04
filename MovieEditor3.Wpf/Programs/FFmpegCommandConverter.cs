@@ -3,7 +3,7 @@ using System.Windows;
 
 namespace MovieEditor3.Wpf.Programs;
 
-internal class FFmpegCommandConverter
+internal partial class FFmpegCommandConverter
 {
     private const string MOVIE_FORMAT = ".mp4";
 
@@ -390,18 +390,23 @@ internal class FFmpegCommandConverter
 
         try
         {
-            var args = command.Split(" ");
-
-            if (0 < args.Length)
+            // ダブルクォーテーションで囲まれた部分、または空白で区切られた部分を抽出
+            var matches = MyRegex().Matches(command);
+            if (matches.Count > 0)
             {
-                result = args[^1].Trim('"');
+                // 最後のマッチが出力ファイルパス
+                var last = matches[^1];
+                result = last.Groups[1].Success ? last.Groups[1].Value : last.Groups[2].Value;
             }
         }
-        catch (Exception)
+        catch (Exception e)
         {
-
+            System.Diagnostics.Trace.WriteLine(e);
         }
 
         return result;
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex("\"([^\"]+)\"|([^\\s]+)")]
+    private static partial System.Text.RegularExpressions.Regex MyRegex();
 }
