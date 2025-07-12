@@ -14,7 +14,7 @@ namespace MovieEditor3.Wpf;
 /// </summary>
 public partial class App : Application
 {
-    private const string REPORT_FILE_NAME = "report.txt";
+    private const string REPORT_FILE_NAME = "report.log";
 
     /// <summary> キャッシュ用ディレクトリ </summary>
     public static readonly string CacheDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Cache");
@@ -45,7 +45,7 @@ public partial class App : Application
         Trace.Listeners.Add(new TextWriterTraceListener(reportFile));
         Trace.AutoFlush = true;
 
-        Trace.WriteLine($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss:fff}] The application has started.");
+        Trace.WriteLine($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff}] The application has started.");
 
         // JSONファイルからユーザー設定を読み込む
         JsonHandler.Load();
